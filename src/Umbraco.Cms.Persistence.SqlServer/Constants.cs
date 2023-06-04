@@ -1,12 +1,12 @@
 namespace Umbraco.Cms.Persistence.SqlServer;
 
 /// <summary>
-///     Constants related to SQL Server.
+///     Constants related to SQLite.
 /// </summary>
 public static class Constants
 {
     /// <summary>
-    ///     SQL Server provider name.
+    ///     SQLite provider name.
     /// </summary>
     public const string ProviderName = "Microsoft.Data.SqlClient";
 }

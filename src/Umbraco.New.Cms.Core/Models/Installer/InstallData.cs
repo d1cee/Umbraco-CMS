@@ -8,5 +8,5 @@ public class InstallData
 
     public DatabaseInstallData Database { get; set; } = null!;
 
-    public TelemetryLevel TelemetryLevel { get; set; } = TelemetryLevel.Detailed;
+    public TelemetryLevel TelemetryLevel { get; set; } = TelemetryLevel.Basic;
 }

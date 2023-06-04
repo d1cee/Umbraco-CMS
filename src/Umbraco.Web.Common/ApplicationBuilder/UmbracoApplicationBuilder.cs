@@ -1,8 +1,14 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Web.Common.Media;
 using Umbraco.Extensions;
+using IHostingEnvironment = Umbraco.Cms.Core.Hosting.IHostingEnvironment;
 
 namespace Umbraco.Cms.Web.Common.ApplicationBuilder;
 
@@ -71,7 +77,24 @@ public class UmbracoApplicationBuilder : IUmbracoApplicationBuilder, IUmbracoEnd
     {
         UseUmbracoCoreMiddleware();
 
-        AppBuilder.UseUmbracoMediaFileProvider();
+        // Get media file provider and request path/URL
+        MediaFileManager mediaFileManager = AppBuilder.ApplicationServices.GetRequiredService<MediaFileManager>();
+        if (mediaFileManager.FileSystem.TryCreateFileProvider(out IFileProvider? mediaFileProvider))
+        {
+            GlobalSettings globalSettings =
+                AppBuilder.ApplicationServices.GetRequiredService<IOptions<GlobalSettings>>().Value;
+            IHostingEnvironment? hostingEnvironment = AppBuilder.ApplicationServices.GetService<IHostingEnvironment>();
+            var mediaRequestPath = hostingEnvironment?.ToAbsolute(globalSettings.UmbracoMediaPath);
+
+            // Configure custom file provider for media
+            IWebHostEnvironment? webHostEnvironment = AppBuilder.ApplicationServices.GetService<IWebHostEnvironment>();
+            if (webHostEnvironment is not null)
+            {
+                webHostEnvironment.WebRootFileProvider =
+                    webHostEnvironment.WebRootFileProvider.ConcatComposite(
+                        new MediaPrependBasePathFileProvider(mediaRequestPath, mediaFileProvider));
+            }
+        }
 
         AppBuilder.UseStaticFiles();
 

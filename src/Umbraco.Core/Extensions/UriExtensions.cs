@@ -1,7 +1,6 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
-using System;
 using System.Net;
 using System.Web;
 using Umbraco.Cms.Core;
@@ -76,14 +75,14 @@ public static class UriExtensions
         }
 
         // cannot get .AbsolutePath on relative uri (InvalidOperation)
-        var s = uri.OriginalString.AsSpan();
+        var s = uri.OriginalString;
 
         // TODO: Shouldn't this just use Uri.GetLeftPart?
-        var posq = s.IndexOf('?');
-        var posf = s.IndexOf('#');
+        var posq = s.IndexOf("?", StringComparison.Ordinal);
+        var posf = s.IndexOf("#", StringComparison.Ordinal);
         var pos = posq > 0 ? posq : posf > 0 ? posf : 0;
-        var path = pos > 0 ? s[..pos] : s;
-        return new string(path);
+        var path = pos > 0 ? s.Substring(0, pos) : s;
+        return path;
     }
 
     /// <summary>
@@ -189,12 +188,12 @@ public static class UriExtensions
         }
 
         // cannot get .Query on relative uri (InvalidOperation)
-        var s = uri.OriginalString.AsSpan();
-        var posq = s.IndexOf('?');
-        var posf = s.IndexOf('#');
-        var query = posq < 0 ? null : (posf < 0 ? s[posq..] : s.Slice(posq, posf - posq));
+        var s = uri.OriginalString;
+        var posq = s.IndexOf("?", StringComparison.Ordinal);
+        var posf = s.IndexOf("#", StringComparison.Ordinal);
+        var query = posq < 0 ? null : (posf < 0 ? s.Substring(posq) : s.Substring(posq, posf - posq));
 
-        return new string(query);
+        return query;
     }
 
     /// <summary>

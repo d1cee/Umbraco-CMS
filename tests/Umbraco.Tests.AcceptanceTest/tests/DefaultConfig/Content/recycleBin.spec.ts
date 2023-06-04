@@ -4,8 +4,7 @@ import {ContentBuilder, DocumentTypeBuilder} from "@umbraco/json-models-builders
 
 test.describe('Recycle bin', () => {
 
-  test.beforeEach(async ({ page, umbracoApi }, testInfo) => {
-    await umbracoApi.report.report(testInfo);
+  test.beforeEach(async ({page, umbracoApi}) => {
     await umbracoApi.login();
   });
 

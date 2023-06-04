@@ -3,7 +3,6 @@ using Umbraco.Cms.Infrastructure.Persistence.Dtos;
 
 namespace Umbraco.Cms.Infrastructure.Migrations.Upgrade.V_8_0_0;
 
-[Obsolete("This is not used anymore and will be removed in Umbraco 13")]
 /// <summary>
 ///     Creates/Updates non mandatory FK columns to the user table
 /// </summary>

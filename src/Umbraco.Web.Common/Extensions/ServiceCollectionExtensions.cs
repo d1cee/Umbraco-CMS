@@ -82,9 +82,8 @@ public static class ServiceCollectionExtensions
         IHostEnvironment hostEnvironment,
         IConfiguration configuration)
     {
-        LoggingSettings loggerSettings = GetLoggerSettings(configuration);
-
-        var loggingDir = loggerSettings.GetAbsoluteLoggingPath(hostEnvironment);
+        // TODO: WEBSITE_RUN_FROM_PACKAGE - can't assume this DIR is writable - we have an IConfiguration instance so a later refactor should be easy enough.
+        var loggingDir = hostEnvironment.MapPathContentRoot(Constants.SystemDirectories.LogFiles);
         ILoggingConfiguration loggingConfig = new LoggingConfiguration(loggingDir);
 
         var umbracoFileConfiguration = new UmbracoFileConfiguration(configuration);
@@ -97,18 +96,11 @@ public static class ServiceCollectionExtensions
         // Bootstrap logger setup
         ///////////////////////////////////////////////
 
-        Func<LoggerConfiguration, LoggerConfiguration> serilogConfig = cfg => cfg
+        LoggerConfiguration serilogConfig = new LoggerConfiguration()
             .MinimalConfiguration(hostEnvironment, loggingConfig, umbracoFileConfiguration)
             .ReadFrom.Configuration(configuration);
 
-        if (Log.Logger is ReloadableLogger reloadableLogger)
-        {
-            reloadableLogger.Reload(serilogConfig);
-        }
-        else
-        {
-            Log.Logger = serilogConfig(new LoggerConfiguration()).CreateBootstrapLogger();
-        }
+        Log.Logger = serilogConfig.CreateBootstrapLogger();
 
         ///////////////////////////////////////////////
         // Runtime logger setup
@@ -152,13 +144,6 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IDiagnosticContext>(diagnosticContext);
 
         return services;
-    }
-
-    private static LoggingSettings GetLoggerSettings(IConfiguration configuration)
-    {
-        var loggerSettings = new LoggingSettings();
-        configuration.GetSection(Constants.Configuration.ConfigLogging).Bind(loggerSettings);
-        return loggerSettings;
     }
 
     /// <summary>

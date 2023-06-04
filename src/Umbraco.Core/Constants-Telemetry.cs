@@ -1,4 +1,4 @@
-namespace Umbraco.Cms.Core;
+﻿namespace Umbraco.Cms.Core;
 
 public static partial class Constants
 {
@@ -28,6 +28,5 @@ public static partial class Constants
         public static string IsDebug = "IsDebug";
         public static string DatabaseProvider = "DatabaseProvider";
         public static string CurrentServerRole = "CurrentServerRole";
-        public static string RuntimeMode = "RuntimeMode";
     }
 }

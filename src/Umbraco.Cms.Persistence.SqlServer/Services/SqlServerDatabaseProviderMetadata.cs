@@ -1,9 +1,6 @@
-using System.Data.Common;
 using System.Runtime.Serialization;
-using Microsoft.Data.SqlClient;
 using Umbraco.Cms.Core.Install.Models;
 using Umbraco.Cms.Infrastructure.Persistence;
-using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Persistence.SqlServer.Services;
 
@@ -50,27 +47,7 @@ public class SqlServerDatabaseProviderMetadata : IDatabaseProviderMetadata
     public bool RequiresConnectionTest => true;
 
     /// <inheritdoc />
-    public bool ForceCreateDatabase => true;
-
-    /// <inheritdoc />
-    public bool CanRecognizeConnectionString(string? connectionString)
-    {
-        if (connectionString is null)
-        {
-            return false;
-        }
-
-        try
-        {
-            var builder = new SqlConnectionStringBuilder(connectionString);
-
-            return string.IsNullOrEmpty(builder.AttachDBFilename);
-        }
-        catch (ArgumentException)
-        {
-            return false;
-        }
-    }
+    public bool ForceCreateDatabase => false;
 
     /// <inheritdoc />
     public string GenerateConnectionString(DatabaseModel databaseModel) =>

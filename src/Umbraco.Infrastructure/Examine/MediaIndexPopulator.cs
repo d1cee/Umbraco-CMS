@@ -59,10 +59,13 @@ public class MediaIndexPopulator : IndexPopulator<IUmbracoContentIndex>
         {
             media = _mediaService.GetPagedDescendants(mediaParentId, pageIndex, pageSize, out _).ToArray();
 
-            // ReSharper disable once PossibleMultipleEnumeration
-            foreach (IIndex index in indexes)
+            if (media.Length > 0)
             {
-                index.IndexItems(_mediaValueSetBuilder.GetValueSets(media));
+                // ReSharper disable once PossibleMultipleEnumeration
+                foreach (IIndex index in indexes)
+                {
+                    index.IndexItems(_mediaValueSetBuilder.GetValueSets(media));
+                }
             }
 
             pageIndex++;

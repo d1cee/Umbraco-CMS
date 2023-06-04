@@ -42,7 +42,7 @@ public class DatabaseUpgradeStep : IInstallStep, IUpgradeStep
         _logger.LogInformation("Running 'Upgrade' service");
 
         var plan = new UmbracoPlan(_umbracoVersion);
-        // TODO: Clear CSRF cookies with notification.
+        plan.AddPostMigration<ClearCsrfCookies>(); // needed when running installer (back-office)
 
         DatabaseBuilder.Result? result = _databaseBuilder.UpgradeSchemaAndData(plan);
 

@@ -82,7 +82,7 @@
                 // Must wait until the current digest cycle is finished before we emit this event on init, 
                 // otherwise other property editors might not yet be ready to receive the event
                 $timeout(function () {
-                    eventsService.emit("toggleValue", { value: scope.checked, inputId: scope.inputId });
+                    eventsService.emit("toggleValue", { value: scope.checked });
                 }, 100);
             }
 
@@ -122,7 +122,7 @@
                 }
 
                 if (scope.onClick) {
-                    eventsService.emit("toggleValue", { value: !scope.checked, inputId: scope.inputId });
+                    eventsService.emit("toggleValue", { value: !scope.checked });
                     scope.onClick();
                 }
             };

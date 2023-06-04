@@ -85,11 +85,9 @@ function ExamineManagementController($http, $q, $timeout, umbRequestHelper, loca
     function nextSearchResultPage(pageNumber) {
         search(vm.selectedIndex ? vm.selectedIndex : vm.selectedSearcher, null, pageNumber);
     }
-
     function prevSearchResultPage(pageNumber) {
         search(vm.selectedIndex ? vm.selectedIndex : vm.selectedSearcher, null, pageNumber);
     }
-
     function goToPageSearchResultPage(pageNumber) {
         search(vm.selectedIndex ? vm.selectedIndex : vm.selectedSearcher, null, pageNumber);
     }
@@ -131,7 +129,7 @@ function ExamineManagementController($http, $q, $timeout, umbRequestHelper, loca
 
         event.stopPropagation();
         event.preventDefault();
-    }
+    } 
 
     function setViewState(state) {
         vm.searchResults = null;
@@ -139,13 +137,11 @@ function ExamineManagementController($http, $q, $timeout, umbRequestHelper, loca
     }
 
     function showIndexInfo(index) {
-        vm.selectedSearcher = null;
         vm.selectedIndex = index;
         setViewState("index-details");
     }
 
     function showSearcherInfo(searcher) {
-        vm.selectedIndex = null;
         vm.selectedSearcher = searcher;
         setViewState("searcher-details");
     }
@@ -195,31 +191,29 @@ function ExamineManagementController($http, $q, $timeout, umbRequestHelper, loca
 
         searcher.isProcessing = true;
 
-        const pageIndex = pageNumber ? (pageNumber - 1) : 0;
-
         umbRequestHelper.resourcePromise(
                 $http.get(umbRequestHelper.getApiUrl("examineMgmtBaseUrl",
                     "GetSearchResults",
                     {
                         searcherName: searcher.name,
                         query: encodeURIComponent(vm.searchText),
-                        pageIndex: pageIndex
+                        pageIndex: pageNumber ? (pageNumber - 1) : 0
                     })),
                 'Failed to search')
             .then(searchResults => {
                 searcher.isProcessing = false;
-                vm.searchResults = searchResults;
-                vm.searchResults.pageIndex = pageIndex;
+                vm.searchResults = searchResults
                 vm.searchResults.pageNumber = pageNumber ? pageNumber : 1;
-                vm.searchResults.totalPages = Math.ceil(vm.searchResults.totalRecords / vm.searchResults.pageSize);
+                //20 is page size
+                vm.searchResults.totalPages = Math.ceil(vm.searchResults.totalRecords / 20);
                 // add URLs to edit well known entities
                 _.each(vm.searchResults.results, function (result) {
                     var section = result.values["__IndexType"][0];
                     switch (section) {
                         case "content":
                         case "media":
-                            result.editUrl = "/" + section + "/" + section + "/edit/" + result.id;
-                            result.editId = result.id;
+                            result.editUrl = "/" + section + "/" + section + "/edit/" + result.values["__NodeId"][0];
+                            result.editId = result.values["__NodeId"][0];
                             result.editSection = section;
                             break;
                         case "member":

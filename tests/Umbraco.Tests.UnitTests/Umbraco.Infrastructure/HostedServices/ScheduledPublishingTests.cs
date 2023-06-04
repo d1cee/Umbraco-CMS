@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;

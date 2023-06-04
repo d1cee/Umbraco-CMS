@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;

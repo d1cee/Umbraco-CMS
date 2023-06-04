@@ -31,7 +31,8 @@ public sealed class ConfigureMemberIdentityOptions : IConfigureOptions<IdentityO
 
         options.Lockout.AllowedForNewUsers = true;
 
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(_securitySettings.MemberDefaultLockoutTimeInMinutes);
+        // TODO: Implement this
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(30);
 
         options.Password.ConfigurePasswordOptions(_memberPasswordConfiguration);
 

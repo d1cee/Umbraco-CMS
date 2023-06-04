@@ -76,7 +76,7 @@
 
         // get pre values
         dataTypeResource.getPreValues(newDataType.selectedEditor).then(function(preValues) {
-          newDataType.preValues = dataTypeHelper.createPreValueProps(preValues);
+          newDataType.preValues = preValues;
           vm.dataType = newDataType;
           vm.loadingDataType = false;
         });
@@ -89,7 +89,6 @@
       vm.loadingDataType = true;
       dataTypeResource.getById($scope.model.id).then(function (dataType) {
         vm.dataType = dataType;
-        vm.dataType.preValues = dataTypeHelper.createPreValueProps(dataType.preValues);
         vm.loadingDataType = false;
       });
     }
@@ -107,7 +106,9 @@
 
       vm.saveButtonState = "busy";
 
-      dataTypeResource.save(vm.dataType, vm.dataType.preValues, $scope.model.create).then(
+      var preValues = dataTypeHelper.createPreValueProps(vm.dataType.preValues);
+
+      dataTypeResource.save(vm.dataType, preValues, $scope.model.create).then(
         function(newDataType) {
           $scope.model.dataType = newDataType;
 

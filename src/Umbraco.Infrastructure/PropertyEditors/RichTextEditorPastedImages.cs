@@ -29,7 +29,6 @@ public sealed class RichTextEditorPastedImages
     private readonly IPublishedUrlProvider _publishedUrlProvider;
     private readonly IShortStringHelper _shortStringHelper;
     private readonly IUmbracoContextAccessor _umbracoContextAccessor;
-    private readonly string _tempFolderAbsolutePath;
 
     public RichTextEditorPastedImages(
         IUmbracoContextAccessor umbracoContextAccessor,
@@ -53,9 +52,6 @@ public sealed class RichTextEditorPastedImages
         _mediaUrlGenerators = mediaUrlGenerators;
         _shortStringHelper = shortStringHelper;
         _publishedUrlProvider = publishedUrlProvider;
-
-        _tempFolderAbsolutePath = _hostingEnvironment.MapPathContentRoot(Constants.SystemDirectories.TempImageUploads);
-
     }
 
     /// <summary>
@@ -78,7 +74,6 @@ public sealed class RichTextEditorPastedImages
         // we have already processed to avoid dupes
         var uploadedImages = new Dictionary<string, GuidUdi>();
 
-
         foreach (HtmlNode? img in tmpImages)
         {
             // The data attribute contains the path to the tmp img to persist as a media item
@@ -89,14 +84,7 @@ public sealed class RichTextEditorPastedImages
                 continue;
             }
 
-
-            var absoluteTempImagePath = Path.GetFullPath(_hostingEnvironment.MapPathContentRoot(tmpImgPath));
-
-            if (IsValidPath(absoluteTempImagePath) == false)
-            {
-                continue;
-            }
-
+            var absoluteTempImagePath = _hostingEnvironment.MapPathContentRoot(tmpImgPath);
             var fileName = Path.GetFileName(absoluteTempImagePath);
             var safeFileName = fileName.ToSafeFileName(_shortStringHelper);
 
@@ -195,10 +183,5 @@ public sealed class RichTextEditorPastedImages
         }
 
         return htmlDoc.DocumentNode.OuterHtml;
-    }
-
-    private bool IsValidPath(string imagePath)
-    {
-        return imagePath.StartsWith(_tempFolderAbsolutePath);
     }
 }

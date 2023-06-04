@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Exceptions;
 using Umbraco.Cms.Core.Models;
@@ -13,6 +12,7 @@ using Umbraco.Cms.Core.Persistence.Repositories;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services.Changes;
 using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Core.Services;
@@ -1146,8 +1146,6 @@ public class ContentService : RepositoryService, IContentService
 
             var allLangs = _languageRepository.GetMany().ToList();
 
-            // Change state to publishing
-            content.PublishedState = PublishedState.Publishing;
             var savingNotification = new ContentSavingNotification(content, evtMsgs);
             if (scope.Notifications.PublishCancelable(savingNotification))
             {
@@ -2164,7 +2162,7 @@ public class ContentService : RepositoryService, IContentService
             // (SaveAndPublishBranchOne does *not* do it)
             scope.Notifications.Publish(
                 new ContentTreeChangeNotification(document, TreeChangeTypes.RefreshBranch, eventMessages));
-            scope.Notifications.Publish(new ContentPublishedNotification(publishedDocuments, eventMessages, true));
+            scope.Notifications.Publish(new ContentPublishedNotification(publishedDocuments, eventMessages));
 
             scope.Complete();
         }
@@ -2934,7 +2932,6 @@ public class ContentService : RepositoryService, IContentService
             // save
             saved.Add(content);
             _documentRepository.Save(content);
-            Audit(AuditType.Sort, userId, content.Id, "Sorting content performed by user");
         }
 
         // first saved, then sorted
@@ -2950,7 +2947,8 @@ public class ContentService : RepositoryService, IContentService
         {
             scope.Notifications.Publish(new ContentPublishedNotification(published, eventMessages));
         }
-        
+
+        Audit(AuditType.Sort, userId, 0, "Sorting content performed by user");
         return OperationResult.Succeed(eventMessages);
     }
 

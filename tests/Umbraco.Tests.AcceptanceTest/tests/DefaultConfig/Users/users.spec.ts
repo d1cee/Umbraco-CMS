@@ -22,9 +22,8 @@ test.describe('Users', () => {
       "userGroups": userGroups,
       "message": ""
     };
-
-  test.beforeEach(async ({ page, umbracoApi }, testInfo) => {
-    await umbracoApi.report.report(testInfo);
+  
+  test.beforeEach(async ({ umbracoApi, page }) => {
     await umbracoApi.login();
   });
 

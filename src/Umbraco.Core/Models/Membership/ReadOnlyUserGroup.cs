@@ -4,7 +4,6 @@ public class ReadOnlyUserGroup : IReadOnlyUserGroup, IEquatable<ReadOnlyUserGrou
 {
     public ReadOnlyUserGroup(
         int id,
-        Guid key, // This is not used for anything now, but will be in v13
         string? name,
         string? icon,
         int? startContentId,
@@ -29,33 +28,6 @@ public class ReadOnlyUserGroup : IReadOnlyUserGroup, IEquatable<ReadOnlyUserGrou
         HasAccessToAllLanguages = hasAccessToAllLanguages;
     }
 
-    [Obsolete("Please use constructor that takes a Guid key. Scheduled for removal in v13")]
-    public ReadOnlyUserGroup(
-        int id,
-        string? name,
-        string? icon,
-        int? startContentId,
-        int? startMediaId,
-        string? alias,
-        IEnumerable<int> allowedLanguages,
-        IEnumerable<string> allowedSections,
-        IEnumerable<string>? permissions,
-        bool hasAccessToAllLanguages)
-    : this(
-        id,
-        Guid.NewGuid(),
-        name,
-        icon,
-        startContentId,
-        startMediaId,
-        alias,
-        allowedLanguages,
-        allowedSections,
-        permissions,
-        hasAccessToAllLanguages)
-    {
-    }
-
     [Obsolete("please use ctor that takes allowedActions & hasAccessToAllLanguages instead, scheduled for removal in v12")]
     public ReadOnlyUserGroup(
         int id,
@@ -66,7 +38,7 @@ public class ReadOnlyUserGroup : IReadOnlyUserGroup, IEquatable<ReadOnlyUserGrou
         string? alias,
         IEnumerable<string> allowedSections,
         IEnumerable<string>? permissions)
-    : this(id, Guid.NewGuid(), name, icon, startContentId, startMediaId, alias, Enumerable.Empty<int>(), allowedSections, permissions, true)
+    : this(id, name, icon, startContentId, startMediaId, alias, Enumerable.Empty<int>(), allowedSections, permissions, true)
     {
     }
 

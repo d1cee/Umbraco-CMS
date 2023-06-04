@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Web.Commands;
 using SixLabors.ImageSharp.Web.Middleware;
 using SixLabors.ImageSharp.Web.Processors;
@@ -10,7 +11,7 @@ using Umbraco.Cms.Core.Configuration.Models;
 namespace Umbraco.Cms.Imaging.ImageSharp;
 
 /// <summary>
-/// Configures the ImageSharp middleware options.
+///     Configures the ImageSharp middleware options.
 /// </summary>
 /// <seealso cref="IConfigureOptions{ImageSharpMiddlewareOptions}" />
 public sealed class ConfigureImageSharpMiddlewareOptions : IConfigureOptions<ImageSharpMiddlewareOptions>
@@ -19,7 +20,7 @@ public sealed class ConfigureImageSharpMiddlewareOptions : IConfigureOptions<Ima
     private readonly ImagingSettings _imagingSettings;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ConfigureImageSharpMiddlewareOptions" /> class.
+    ///     Initializes a new instance of the <see cref="ConfigureImageSharpMiddlewareOptions" /> class.
     /// </summary>
     /// <param name="configuration">The ImageSharp configuration.</param>
     /// <param name="imagingSettings">The Umbraco imaging settings.</param>
@@ -34,7 +35,6 @@ public sealed class ConfigureImageSharpMiddlewareOptions : IConfigureOptions<Ima
     {
         options.Configuration = _configuration;
 
-        options.HMACSecretKey = _imagingSettings.HMACSecretKey;
         options.BrowserMaxAge = _imagingSettings.Cache.BrowserMaxAge;
         options.CacheMaxAge = _imagingSettings.Cache.CacheMaxAge;
         options.CacheHashLength = _imagingSettings.Cache.CacheHashLength;
@@ -42,19 +42,22 @@ public sealed class ConfigureImageSharpMiddlewareOptions : IConfigureOptions<Ima
         // Use configurable maximum width and height
         options.OnParseCommandsAsync = context =>
         {
-            if (context.Commands.Count == 0 || _imagingSettings.HMACSecretKey.Length > 0)
+            if (context.Commands.Count == 0)
             {
-                // Nothing to parse or using HMAC authentication
                 return Task.CompletedTask;
             }
 
-            int width = context.Parser.ParseValue<int>(context.Commands.GetValueOrDefault(ResizeWebProcessor.Width), context.Culture);
+            var width = context.Parser.ParseValue<int>(
+                context.Commands.GetValueOrDefault(ResizeWebProcessor.Width),
+                context.Culture);
             if (width <= 0 || width > _imagingSettings.Resize.MaxWidth)
             {
                 context.Commands.Remove(ResizeWebProcessor.Width);
             }
 
-            int height = context.Parser.ParseValue<int>(context.Commands.GetValueOrDefault(ResizeWebProcessor.Height), context.Culture);
+            var height = context.Parser.ParseValue<int>(
+                context.Commands.GetValueOrDefault(ResizeWebProcessor.Height),
+                context.Culture);
             if (height <= 0 || height > _imagingSettings.Resize.MaxHeight)
             {
                 context.Commands.Remove(ResizeWebProcessor.Height);
@@ -70,16 +73,11 @@ public sealed class ConfigureImageSharpMiddlewareOptions : IConfigureOptions<Ima
             {
                 ResponseHeaders headers = context.Response.GetTypedHeaders();
 
-                CacheControlHeaderValue cacheControl = headers.CacheControl ?? new CacheControlHeaderValue()
-                {
-                    Public = true
-                };
-
-                // ImageSharp enables cache revalidation by default, so disable and add immutable directive
-                cacheControl.MustRevalidate = false;
+                CacheControlHeaderValue cacheControl =
+                    headers.CacheControl ?? new CacheControlHeaderValue { Public = true };
+                cacheControl.MustRevalidate = false; // ImageSharp enables this by default
                 cacheControl.Extensions.Add(new NameValueHeaderValue("immutable"));
 
-                // Set updated value
                 headers.CacheControl = cacheControl;
             }
 

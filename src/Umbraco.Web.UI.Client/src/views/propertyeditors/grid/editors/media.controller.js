@@ -1,10 +1,10 @@
 angular.module("umbraco")
     .controller("Umbraco.PropertyEditors.Grid.MediaController",
-    function ($scope, userService, editorService, localizationService, mediaHelper) {
+    function ($scope, userService, editorService, localizationService) {
 
         $scope.control.icon = $scope.control.icon || 'icon-picture';
 
-        updateThumbnailUrl();
+        $scope.thumbnailUrl = getThumbnailUrl();
 
         if (!$scope.model.config.startNodeId) {
             if ($scope.model.config.ignoreUserStartNodes === true) {
@@ -61,31 +61,40 @@ angular.module("umbraco")
         /**
          *
          */
-        function updateThumbnailUrl() {
+        function getThumbnailUrl() {
+
             if ($scope.control.value && $scope.control.value.image) {
-                var options = {
-                    width: 800
-                };
+                var url = $scope.control.value.image;
 
-                if ($scope.control.value.coordinates) {
-                    // Use crop
-                    options.crop = $scope.control.value.coordinates;
-                } else if ($scope.control.value.focalPoint) {
-                    // Otherwise use focal point
-                    options.focalPoint = $scope.control.value.focalPoint;
+                if ($scope.control.editor.config && $scope.control.editor.config.size){
+                    if ($scope.control.value.coordinates) {
+                        // New way, crop by percent must come before width/height.
+                        var coords = $scope.control.value.coordinates;
+                        url += `?cc=${coords.x1},${coords.y1},${coords.x2},${coords.y2}`;
+                    } else {
+                        // Here in order not to break existing content where focalPoint were used.
+                        if ($scope.control.value.focalPoint) {
+                            url += `?rxy=${$scope.control.value.focalPoint.left},${$scope.control.value.focalPoint.top}`;
+                        } else {
+                            // Prevent black padding and no crop when focal point not set / changed from default
+                            url += '?rxy=0.5,0.5';
+                        }
+                    }
+
+                    url += '&width=' + $scope.control.editor.config.size.width;
+                    url += '&height=' + $scope.control.editor.config.size.height;
                 }
 
-                if ($scope.control.editor.config && $scope.control.editor.config.size) {
-                    options.width = $scope.control.editor.config.size.width;
-                    options.height = $scope.control.editor.config.size.height;
+                // set default size if no crop present (moved from the view)
+                if (url.includes('?') === false)
+                {
+                    url += '?width=800'
                 }
 
-                mediaHelper.getProcessedImageUrl($scope.control.value.image, options).then(imageUrl => {
-                    $scope.thumbnailUrl = imageUrl;
-                });
-            } else {
-                $scope.thumbnailUrl = null;
+                return url;
             }
+
+            return null;
         }
 
         /**
@@ -104,7 +113,6 @@ angular.module("umbraco")
                 caption: selectedImage.caption,
                 altText: selectedImage.altText
             };
-
-            updateThumbnailUrl();
+            $scope.thumbnailUrl = getThumbnailUrl();
         }
     });

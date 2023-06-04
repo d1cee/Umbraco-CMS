@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using Moq;

@@ -74,7 +74,6 @@ public class StringReplaceManyBenchmarks
 
         return result;
     }
-
     /*
 
     short text, short replacement:

@@ -4,7 +4,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Exceptions;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
@@ -13,6 +12,7 @@ using Umbraco.Cms.Core.PropertyEditors.Validators;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Umbraco.Cms.Core.PropertyEditors;
 
@@ -68,9 +68,6 @@ public class MultipleTextStringPropertyEditor : DataEditor
     /// </summary>
     internal class MultipleTextStringPropertyValueEditor : DataValueEditor
     {
-        private static readonly string NewLine = "\n";
-        private static readonly string[] NewLineDelimiters = { "\r\n", "\r", "\n" };
-
         private readonly ILocalizedTextService _localizedTextService;
 
         public MultipleTextStringPropertyValueEditor(
@@ -122,10 +119,10 @@ public class MultipleTextStringPropertyEditor : DataEditor
             // only allow the max if over 0
             if (max > 0)
             {
-                return string.Join(NewLine, array.Take(max));
+                return string.Join(Environment.NewLine, array.Take(max));
             }
 
-            return string.Join(NewLine, array);
+            return string.Join(Environment.NewLine, array);
         }
 
         /// <summary>
@@ -134,6 +131,7 @@ public class MultipleTextStringPropertyEditor : DataEditor
         ///     cannot have 2 way binding, so to get around that each item in the array needs to be an object with a string.
         /// </summary>
         /// <param name="property"></param>
+        /// <param name="dataTypeService"></param>
         /// <param name="culture"></param>
         /// <param name="segment"></param>
         /// <returns></returns>
@@ -143,9 +141,8 @@ public class MultipleTextStringPropertyEditor : DataEditor
         public override object ToEditor(IProperty property, string? culture = null, string? segment = null)
         {
             var val = property.GetValue(culture, segment);
-
-            return val?.ToString()?.Split(NewLineDelimiters, StringSplitOptions.None).Select(x => JObject.FromObject(new { value = x }))
-                ?? Array.Empty<JObject>();
+            return val?.ToString()?.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => JObject.FromObject(new { value = x })) ?? new JObject[] { };
         }
     }
 

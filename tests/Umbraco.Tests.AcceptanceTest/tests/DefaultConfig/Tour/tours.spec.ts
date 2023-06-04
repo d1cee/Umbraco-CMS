@@ -3,8 +3,7 @@ import {test} from '@umbraco/playwright-testhelpers';
 
 test.describe('Tours', () => {
   const timeout = 60000;
-  test.beforeEach(async ({ page, umbracoApi }, testInfo) => {
-    await umbracoApi.report.report(testInfo);
+  test.beforeEach(async ({page, umbracoApi}) => {
     await umbracoApi.login();
     await resetTourData(umbracoApi);
   });
@@ -76,9 +75,7 @@ test.describe('Tours', () => {
 
   }
 
-  test('Backoffice introduction tour should run', async ({page, umbracoApi, umbracoUi}, testInfo) => {
-    await testInfo.slow();
-
+  test('Backoffice introduction tour should run', async ({page, umbracoApi, umbracoUi}) => {
     // We have to reload this page, as we already get a page context after login
     // before we have reset a users tour data
     await expect(await umbracoUi.getGlobalHelp()).toBeVisible();
@@ -89,9 +86,7 @@ test.describe('Tours', () => {
     await getPercentage(17, timeout, page);
   });
 
-  test('Backoffice introduction tour should run, then rerun', async ({page, umbracoApi, umbracoUi}, testInfo) => {
-    await testInfo.slow();
-
+  test('Backoffice introduction tour should run, then rerun', async ({page, umbracoApi, umbracoUi}) => {
     await expect(await umbracoUi.getGlobalHelp()).toBeVisible();
     await umbracoUi.clickElement(umbracoUi.getGlobalHelp());
     await runBackOfficeIntroTour(0, 'Start', timeout, page, umbracoUi);

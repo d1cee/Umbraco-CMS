@@ -36,12 +36,7 @@ public class DatabaseConfigureStep : InstallSetupStep<DatabaseModel>
 
     public override Task<InstallSetupResult?> ExecuteAsync(DatabaseModel databaseSettings)
     {
-        if (databaseSettings is null && string.IsNullOrWhiteSpace(_connectionStrings.CurrentValue.ConnectionString) is false)
-        {
-            return Task.FromResult<InstallSetupResult?>(null);
-        }
-
-        if (!_databaseBuilder.ConfigureDatabaseConnection(databaseSettings!, false))
+        if (!_databaseBuilder.ConfigureDatabaseConnection(databaseSettings, false))
         {
             throw new InstallException("Could not connect to the database");
         }

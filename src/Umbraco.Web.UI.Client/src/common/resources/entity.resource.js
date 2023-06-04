@@ -176,9 +176,9 @@ function entityResource($q, $http, umbRequestHelper) {
                      "GetUrlsByIds",
                      query),
                  {
-                     ids: udis
+                     ids: ids
                  }),
-             'Failed to retrieve url map for ids ' + udis);
+             'Failed to retrieve url map for ids ' + ids);
         },
 
         getUrlByUdi: function (udi, culture) {
@@ -319,21 +319,8 @@ function entityResource($q, $http, umbRequestHelper) {
         },
 
         /**
-         * @deprecated use getByXPath instead.
-         */
-        getByQuery: function (query, nodeContextId, type) {
-            return umbRequestHelper.resourcePromise(
-            $http.get(
-                umbRequestHelper.getApiUrl(
-                    "entityApiBaseUrl",
-                    "GetByQuery",
-                    [{ query: query }, { nodeContextId: nodeContextId }, { type: type }])),
-            'Failed to retrieve entity data for query ' + query);
-        },
-
-        /**
          * @ngdoc method
-         * @name umbraco.resources.entityResource#getByXPath
+         * @name umbraco.resources.entityResource#getByQuery
          * @methodOf umbraco.resources.entityResource
          *
          * @description
@@ -342,7 +329,7 @@ function entityResource($q, $http, umbRequestHelper) {
          * ##usage
          * <pre>
          * //get content by xpath
-         * entityResource.getByXPath("$current", -1, -1, "Document")
+         * entityResource.getByQuery("$current", -1, "Document")
          *    .then(function(ent) {
          *        var myDoc = ent;
          *        alert('its here!');
@@ -351,18 +338,17 @@ function entityResource($q, $http, umbRequestHelper) {
          *
          * @param {string} query xpath to use in query
          * @param {Int} nodeContextId id id to start from
-         * @param {Int} parentId id id of the parent to the starting point
          * @param {string} type Object type name
          * @returns {Promise} resourcePromise object containing the entity.
          *
          */
-        getByXPath: function (query, nodeContextId, parentId, type) {
+        getByQuery: function (query, nodeContextId, type) {
             return umbRequestHelper.resourcePromise(
                $http.get(
                    umbRequestHelper.getApiUrl(
                        "entityApiBaseUrl",
-                       "GetByXPath",
-                       [{ query: query }, { nodeContextId: nodeContextId }, { parentId: parentId }, { type: type }])),
+                       "GetByQuery",
+                       [{ query: query }, { nodeContextId: nodeContextId }, { type: type }])),
                'Failed to retrieve entity data for query ' + query);
         },
 

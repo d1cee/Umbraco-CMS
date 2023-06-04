@@ -1,7 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Logging;
 using Umbraco.Cms.Core.Migrations;
@@ -21,7 +18,6 @@ namespace Umbraco.Cms.Infrastructure.Install;
 public class PackageMigrationRunner
 {
     private readonly IEventAggregator _eventAggregator;
-    private readonly ILogger<PackageMigrationRunner> _logger;
     private readonly IKeyValueService _keyValueService;
     private readonly IMigrationPlanExecutor _migrationPlanExecutor;
     private readonly Dictionary<string, PackageMigrationPlan> _packageMigrationPlans;
@@ -36,8 +32,7 @@ public class PackageMigrationRunner
         PackageMigrationPlanCollection packageMigrationPlans,
         IMigrationPlanExecutor migrationPlanExecutor,
         IKeyValueService keyValueService,
-        IEventAggregator eventAggregator,
-        ILogger<PackageMigrationRunner> logger)
+        IEventAggregator eventAggregator)
     {
         _profilingLogger = profilingLogger;
         _scopeProvider = scopeProvider;
@@ -45,29 +40,7 @@ public class PackageMigrationRunner
         _migrationPlanExecutor = migrationPlanExecutor;
         _keyValueService = keyValueService;
         _eventAggregator = eventAggregator;
-        _logger = logger;
         _packageMigrationPlans = packageMigrationPlans.ToDictionary(x => x.Name);
-    }
-
-    [Obsolete("Use constructor that takes ILogger, this will be removed in V13")]
-    public PackageMigrationRunner(
-        IProfilingLogger profilingLogger,
-        ICoreScopeProvider scopeProvider,
-        PendingPackageMigrations pendingPackageMigrations,
-        PackageMigrationPlanCollection packageMigrationPlans,
-        IMigrationPlanExecutor migrationPlanExecutor,
-        IKeyValueService keyValueService,
-        IEventAggregator eventAggregator)
-        : this(
-            profilingLogger,
-            scopeProvider,
-            pendingPackageMigrations,
-            packageMigrationPlans,
-            migrationPlanExecutor,
-            keyValueService,
-            eventAggregator,
-            StaticServiceProvider.Instance.GetRequiredService<ILogger<PackageMigrationRunner>>())
-    {
     }
 
     /// <summary>
@@ -98,27 +71,30 @@ public class PackageMigrationRunner
     /// <exception cref="Exception">If any plan fails it will throw an exception.</exception>
     public IEnumerable<ExecutedMigrationPlan> RunPackagePlans(IEnumerable<string> plansToRun)
     {
-        List<ExecutedMigrationPlan> results = new();
+        var results = new List<ExecutedMigrationPlan>();
 
-        // We don't create an explicit scope, the Upgrader will handle that depending on the migration type.
-        // We also run ALL the package migration to completion, even if one fails, my package should not fail if someone else's package does
-        foreach (var migrationName in plansToRun)
+        // Create an explicit scope around all package migrations so they are
+        // all executed in a single transaction. If one package migration fails,
+        // none of them will be committed. This is intended behavior so we can
+        // ensure when we publish the success notification that is is done when they all succeed.
+        using (ICoreScope scope = _scopeProvider.CreateCoreScope(autoComplete: true))
         {
-            if (_packageMigrationPlans.TryGetValue(migrationName, out PackageMigrationPlan? plan) is false)
+            foreach (var migrationName in plansToRun)
             {
-                // If we can't find the migration plan for a package we'll just log a message and continue.
-                _logger.LogError("Package migration failed for {migrationName}, was unable to find the migration plan", migrationName);
-                continue;
-            }
+                if (!_packageMigrationPlans.TryGetValue(migrationName, out PackageMigrationPlan? plan))
+                {
+                    throw new InvalidOperationException("Cannot find package migration plan " + migrationName);
+                }
 
-            using (_profilingLogger.TraceDuration<PackageMigrationRunner>(
-                       "Starting unattended package migration for " + migrationName,
-                       "Unattended upgrade completed for " + migrationName))
-            {
-                Upgrader upgrader = new(plan);
+                using (_profilingLogger.TraceDuration<PackageMigrationRunner>(
+                           "Starting unattended package migration for " + migrationName,
+                           "Unattended upgrade completed for " + migrationName))
+                {
+                    var upgrader = new Upgrader(plan);
 
-                // This may throw, if so the transaction will be rolled back
-                results.Add(upgrader.Execute(_migrationPlanExecutor, _scopeProvider, _keyValueService));
+                    // This may throw, if so the transaction will be rolled back
+                    results.Add(upgrader.Execute(_migrationPlanExecutor, _scopeProvider, _keyValueService));
+                }
             }
         }
 

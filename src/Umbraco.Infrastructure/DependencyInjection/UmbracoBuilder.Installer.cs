@@ -7,8 +7,6 @@ using Umbraco.Cms.Core.Install.Models;
 using Umbraco.Cms.Core.Telemetry;
 using Umbraco.Cms.Infrastructure.Install;
 using Umbraco.Cms.Infrastructure.Install.InstallSteps;
-using Umbraco.Cms.Infrastructure.Migrations.Notifications;
-using Umbraco.Cms.Infrastructure.Migrations.PostMigrations;
 
 namespace Umbraco.Cms.Infrastructure.DependencyInjection;
 
@@ -40,8 +38,6 @@ public static partial class UmbracoBuilderExtensions
 
         builder.Services.AddTransient<PackageMigrationRunner>();
 
-        // Add post migration notification handlers
-        builder.AddNotificationHandler<UmbracoPlanExecutedNotification, ClearCsrfCookieHandler>();
         return builder;
     }
 }

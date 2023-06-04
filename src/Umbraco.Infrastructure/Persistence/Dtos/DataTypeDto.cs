@@ -22,7 +22,7 @@ public class DataTypeDto
     public string DbType { get; set; } = null!;
 
     [Column("config")]
-    [SpecialDbType(SpecialDbTypes.NVARCHARMAX)]
+    [SpecialDbType(SpecialDbTypes.NTEXT)]
     [NullSetting(NullSetting = NullSettings.Null)]
     public string? Configuration { get; set; }
 

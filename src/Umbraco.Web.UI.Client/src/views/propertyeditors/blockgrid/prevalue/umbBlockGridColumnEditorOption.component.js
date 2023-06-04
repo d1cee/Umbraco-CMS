@@ -23,13 +23,9 @@
             }
         });
 
-    function BlockGridColumnOptionController(localizationService) {
+    function BlockGridColumnOptionController() {
 
-      var vm = this;
-
-      localizationService.localize("general_remove").then(function (value) {
-        vm.removeLabel = value;
-      })
+        var vm = this;
 
         vm.$onInit = function() {
 

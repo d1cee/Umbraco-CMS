@@ -139,7 +139,6 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
         }
 
         promises.push(stylesheetResource.getRulesByName(val).then(function (rules) {
-          var split;
           rules.forEach(function (rule) {
             var r = {};
             r.title = rule.name;
@@ -152,12 +151,12 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
               r.attributes = { id: rule.selector.substring(1) };
             }
             else if (rule.selector[0] !== "." && rule.selector.indexOf(".") > -1) {
-              split = rule.selector.split(".");
+              var split = rule.selector.split(".");
               r.block = split[0];
               r.classes = rule.selector.substring(rule.selector.indexOf(".") + 1).replace(/\./g, " ");
             }
             else if (rule.selector[0] != "#" && rule.selector.indexOf("#") > -1) {
-              split = rule.selector.split("#");
+              var split = rule.selector.split("#");
               r.block = split[0];
               r.classes = rule.selector.substring(rule.selector.indexOf("#") + 1);
             }
@@ -169,6 +168,9 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
           });
         }));
       });
+    }
+    else {
+      styleFormats = fallbackStyles;
     }
 
     return $q.all(promises).then(function () {
@@ -345,18 +347,18 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
         plugins.push("autoresize");
 
         var modeInline = false;
-        var toolbarActions = args.toolbar.join(" ");
-        var toolbar = toolbarActions;
-        var quickbar = toolbarActions;
+        var toolbar = args.toolbar.join(" ");
 
         // Based on mode set
         // classic = Theme: modern, inline: false
         // inline = Theme: modern, inline: true,
-        // distraction-free = Same as inline - kept for legacy reasons due to older versions of Umbraco having this as a mode
-        if (args.mode === "inline" || args.mode === 'distraction-free') {
+        // distraction-free = Theme: inlite, inline: true
+        if (args.mode === "inline") {
+          modeInline = true;
+        }
+        else if (args.mode === "distraction-free") {
           modeInline = true;
           toolbar = false;
-          plugins.push('quickbars');
         }
 
         //create a baseline Config to extend upon
@@ -372,12 +374,11 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
           autoresize_bottom_margin: 10,
           content_css: styles.stylesheets,
           style_formats: styles.styleFormats,
+          style_formats_autohide: true,
           language: getLanguage(),
 
           //this would be for a theme other than inlite
           toolbar: toolbar,
-          quickbars_insert_toolbar: quickbar,
-          quickbars_selection_toolbar: quickbar,
 
           body_class: "umb-rte",
 
@@ -446,18 +447,7 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
             }
           }
 
-          // if we have style_formats at this point they originate from the RTE CSS config. we don't want any custom
-          // style_formats to interfere with the RTE CSS config, so let's explicitly remove the custom style_formats.
-          if(tinyMceConfig.customConfig.style_formats && config.style_formats && config.style_formats.length){
-            delete tinyMceConfig.customConfig.style_formats;
-          }
-
           Utilities.extend(config, tinyMceConfig.customConfig);
-        }
-
-        if(!config.style_formats || !config.style_formats.length){
-          // if we have no style_formats at this point we'll revert to using the default ones (fallbackStyles)
-          config.style_formats = fallbackStyles;
         }
 
         return config;
@@ -603,7 +593,7 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
     createMediaPicker: function (editor, callback) {
       editor.ui.registry.addButton('umbmediapicker', {
         icon: 'image',
-        tooltip: 'Image Picker',
+        tooltip: 'Media Picker',
         stateSelector: 'img[data-udi]',
         onAction: function () {
 
@@ -726,6 +716,7 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
     createInsertMacro: function (editor, callback) {
 
       let self = this;
+      let activeMacroElement = null; //track an active macro element
 
       /** Adds custom rules for the macro plugin and custom serialization */
       editor.on('preInit', function (args) {
@@ -754,32 +745,20 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
       });
 
       /**
-       * Because the macro got wrapped in a P tag because of the way 'enter' works in older versions of Umbraco, this
+       * Because the macro gets wrapped in a P tag because of the way 'enter' works, this
        * method will return the macro element if not wrapped in a p, or the p if the macro
        * element is the only one inside of it even if we are deep inside an element inside the macro
        */
-      function getRealMacroElem() {
-        // Ask the editor for the currently selected element
-        const element = editor.selection.getNode();
-        if (!element) {
-          return null;
-        }
-
+      function getRealMacroElem(element) {
         var e = $(element).closest(".umb-macro-holder");
-
         if (e.length > 0) {
-          var macroHolder = e.get(0);
-          // In case of Inline Macro we don't need the be backward compliant
-          if(macroHolder.tagName === 'SPAN'){
-            return macroHolder;
-          }
-          if (macroHolder.parentNode.nodeName === "P") {
+          if (e.get(0).parentNode.nodeName === "P") {
             //now check if we're the only element
             if (element.parentNode.childNodes.length === 1) {
-              return macroHolder.parentNode;
+              return e.get(0).parentNode;
             }
           }
-          return macroHolder;
+          return e.get(0);
         }
         return null;
       }
@@ -788,9 +767,32 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
       editor.ui.registry.addButton('umbmacro', {
         icon: 'preferences',
         tooltip: 'Insert macro',
+        onSetup: function (buttonApi) {
+          /**
+           * Check if the macro is currently selected and toggle the menu button
+           */
+          function onNodeChanged(evt) {
+
+            //set our macro button active when on a node of class umb-macro-holder
+            activeMacroElement = getRealMacroElem(evt.element);
+
+            //set the button active/inactive
+            buttonApi.setEnabled(activeMacroElement === null);
+          }
+
+          //set onNodeChanged event listener
+          editor.on('NodeChange', onNodeChanged);
+
+          return function () {
+            //remove the event listener
+            editor.off('NodeChange', onNodeChanged);
+          }
+
+        },
 
         /** The insert macro button click event handler */
         onAction: function () {
+
           var dialogData = {
             //flag for use in rte so we only show macros flagged for the editor
             richTextEditor: true
@@ -798,7 +800,6 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
 
           //when we click we could have a macro already selected and in that case we'll want to edit the current parameters
           //so we'll need to extract them and submit them to the dialog.
-          const activeMacroElement = getRealMacroElem();
           if (activeMacroElement) {
             //we have a macro selected so we'll need to parse it's alias and parameters
             var contents = $(activeMacroElement).contents();
@@ -812,7 +813,7 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
             var parsed = macroService.parseMacroSyntax(syntax);
             dialogData = {
               macroData: parsed,
-              activeMacroElement //pass the active element along so we can retrieve it later
+              activeMacroElement: activeMacroElement //pass the active element along so we can retrieve it later
             };
           }
 
@@ -836,37 +837,35 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
       var macroSyntaxComment = "<!-- " + macroObject.syntax + " -->";
       //create an id class for this element so we can re-select it after inserting
       var uniqueId = "umb-macro-" + editor.dom.uniqueId();
-      var isInlined = macroObject.macroParamsDictionary["enableInlineMacro"] === "1";
-      var macroElementType = isInlined ? 'span' : 'div';
-      var macroElement = editor.dom.create(macroElementType,
+      var macroDiv = editor.dom.create('div',
         {
-          'class': 'umb-macro-holder ' + macroObject.macroAlias + " " + uniqueId + ' mceNonEditable' + (isInlined ? ' inlined-macro' : ''),
+          'class': 'umb-macro-holder ' + macroObject.macroAlias + " " + uniqueId + ' mceNonEditable',
           'contenteditable': 'false'
         },
         macroSyntaxComment + '<ins>Macro alias: <strong>' + macroObject.macroAlias + '</strong></ins>');
 
       //if there's an activeMacroElement then replace it, otherwise set the contents of the selected node
       if (activeMacroElement) {
-        activeMacroElement.replaceWith(macroElement); //directly replaces the html node
+        activeMacroElement.replaceWith(macroDiv); //directly replaces the html node
       }
       else {
-        editor.selection.setNode(macroElement);
+        editor.selection.setNode(macroDiv);
       }
 
-      var $macroElement = $(editor.dom.select(".umb-macro-holder." + uniqueId));
+      var $macroDiv = $(editor.dom.select("div.umb-macro-holder." + uniqueId));
       editor.setDirty(true);
 
       //async load the macro content
-      this.loadMacroContent($macroElement, macroObject, editor);
+      this.loadMacroContent($macroDiv, macroObject, editor);
 
     },
 
     /** loads in the macro content async from the server */
-    loadMacroContent: function ($macroElement, macroData, editor) {
+    loadMacroContent: function ($macroDiv, macroData, editor) {
 
       //if we don't have the macroData, then we'll need to parse it from the macro div
       if (!macroData) {
-        var contents = $macroElement.contents();
+        var contents = $macroDiv.contents();
         var comment = _.find(contents, function (item) {
           return item.nodeType === 8;
         });
@@ -878,15 +877,15 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
         macroData = parsed;
       }
 
-      var $ins = $macroElement.find("ins");
+      var $ins = $macroDiv.find("ins");
 
       //show the throbber
-      $macroElement.addClass("loading");
+      $macroDiv.addClass("loading");
 
       // Add the contenteditable="false" attribute
       // As just the CSS class of .mceNonEditable is not working by itself?!
       // TODO: At later date - use TinyMCE editor DOM manipulation as opposed to jQuery
-      $macroElement.attr("contenteditable", "false");
+      $macroDiv.attr("contenteditable", "false");
 
       var contentId = $routeParams.id;
 
@@ -895,7 +894,7 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
         macroResource.getMacroResultAsHtmlForEditor(macroData.macroAlias, contentId, macroData.macroParamsDictionary)
           .then(function (htmlResult) {
 
-            $macroElement.removeClass("loading");
+            $macroDiv.removeClass("loading");
             htmlResult = htmlResult.trim();
             if (htmlResult !== "") {
               var wasDirty = editor.isDirty();
@@ -1152,7 +1151,7 @@ function tinyMceService($rootScope, $q, imageHelper, $locale, $http, $timeout, s
 
       // the href might be an external url, so check the value for an anchor/qs
       // href has the anchor re-appended later, hence the reset here to avoid duplicating the anchor
-      if (!target.anchor && href) {
+      if (!target.anchor) {
         var urlParts = href.split(/(#|\?)/);
         if (urlParts.length === 3) {
           href = urlParts[0];

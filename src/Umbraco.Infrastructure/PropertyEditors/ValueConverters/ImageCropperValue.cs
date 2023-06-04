@@ -98,7 +98,7 @@ public class ImageCropperValue : IHtmlEncodedString, IEquatable<ImageCropperValu
         }
 
         ImageUrlGenerationOptions options =
-            GetCropBaseOptions(Src, crop, useFocalPoint || string.IsNullOrWhiteSpace(alias));
+            GetCropBaseOptions(null, crop, useFocalPoint || string.IsNullOrWhiteSpace(alias));
 
         if (crop is not null && useCropDimensions)
         {

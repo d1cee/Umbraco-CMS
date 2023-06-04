@@ -16,9 +16,9 @@ public class UmbracoRequestPaths
     private readonly string _appPath;
     private readonly string _backOfficeMvcPath;
     private readonly string _backOfficePath;
-    private readonly string _defaultUmbPath;
-    private readonly string _defaultUmbPathWithSlash;
+    private readonly List<string> _defaultUmbPaths;
     private readonly string _installPath;
+    private readonly string _mvcArea;
     private readonly string _previewMvcPath;
     private readonly string _surfaceMvcPath;
     private readonly IOptions<UmbracoRequestPathsOptions> _umbracoRequestPathsOptions;
@@ -34,19 +34,18 @@ public class UmbracoRequestPaths
     /// </summary>
     public UmbracoRequestPaths(IOptions<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, IOptions<UmbracoRequestPathsOptions> umbracoRequestPathsOptions)
     {
-        _appPath = hostingEnvironment.ApplicationVirtualPath;
+        var applicationPath = hostingEnvironment.ApplicationVirtualPath;
+        _appPath = applicationPath.TrimStart(Constants.CharArrays.ForwardSlash);
 
         _backOfficePath = globalSettings.Value.GetBackOfficePath(hostingEnvironment)
-            .EnsureStartsWith('/').TrimStart(_appPath).EnsureStartsWith('/');
+            .EnsureStartsWith('/').TrimStart(_appPath.EnsureStartsWith('/')).EnsureStartsWith('/');
 
-        string mvcArea = globalSettings.Value.GetUmbracoMvcArea(hostingEnvironment);
-
-        _defaultUmbPath = "/" + mvcArea;
-        _defaultUmbPathWithSlash = "/" + mvcArea + "/";
-        _backOfficeMvcPath = "/" + mvcArea + "/BackOffice/";
-        _previewMvcPath = "/" + mvcArea + "/Preview/";
-        _surfaceMvcPath = "/" + mvcArea + "/Surface/";
-        _apiMvcPath = "/" + mvcArea + "/Api/";
+        _mvcArea = globalSettings.Value.GetUmbracoMvcArea(hostingEnvironment);
+        _defaultUmbPaths = new List<string> { "/" + _mvcArea, "/" + _mvcArea + "/" };
+        _backOfficeMvcPath = "/" + _mvcArea + "/BackOffice/";
+        _previewMvcPath = "/" + _mvcArea + "/Preview/";
+        _surfaceMvcPath = "/" + _mvcArea + "/Surface/";
+        _apiMvcPath = "/" + _mvcArea + "/Api/";
         _installPath = hostingEnvironment.ToAbsolute(Constants.SystemDirectories.Install);
         _umbracoRequestPathsOptions = umbracoRequestPathsOptions;
     }
@@ -62,7 +61,6 @@ public class UmbracoRequestPaths
     ///         These are def back office:
     ///         /Umbraco/BackOffice     = back office
     ///         /Umbraco/Preview        = back office
-    ///         /Umbraco/Management/Api = back office
     ///     </para>
     ///     <para>
     ///         If it's not any of the above then we cannot determine if it's back office or front-end
@@ -79,28 +77,34 @@ public class UmbracoRequestPaths
     /// </remarks>
     public bool IsBackOfficeRequest(string absPath)
     {
-        string urlPath = absPath.TrimStart(_appPath).EnsureStartsWith('/');
+        var fullUrlPath = absPath.TrimStart(Constants.CharArrays.ForwardSlash);
+        var urlPath = fullUrlPath.TrimStart(_appPath).EnsureStartsWith('/');
 
         // check if this is in the umbraco back office
-        if (!urlPath.InvariantStartsWith(_backOfficePath))
+        var isUmbracoPath = urlPath.InvariantStartsWith(_backOfficePath);
+
+        // if not, then def not back office
+        if (isUmbracoPath == false)
         {
             return false;
         }
 
         // if its the normal /umbraco path
-        if (urlPath.InvariantEquals(_defaultUmbPath) || urlPath.InvariantEquals(_defaultUmbPathWithSlash))
+        if (_defaultUmbPaths.Any(x => urlPath.InvariantEquals(x)))
         {
             return true;
         }
 
         // check for special back office paths
-        if (urlPath.InvariantStartsWith(_backOfficeMvcPath) || urlPath.InvariantStartsWith(_previewMvcPath))
+        if (urlPath.InvariantStartsWith(_backOfficeMvcPath)
+            || urlPath.InvariantStartsWith(_previewMvcPath))
         {
             return true;
         }
 
         // check for special front-end paths
-        if (urlPath.InvariantStartsWith(_surfaceMvcPath) || urlPath.InvariantStartsWith(_apiMvcPath))
+        if (urlPath.InvariantStartsWith(_surfaceMvcPath)
+            || urlPath.InvariantStartsWith(_apiMvcPath))
         {
             return false;
         }
@@ -110,39 +114,18 @@ public class UmbracoRequestPaths
             return true;
         }
 
-        // if its none of the above, we will have to try to detect if it's a PluginController route
-        return !IsPluginControllerRoute(urlPath);
-    }
-
-    /// <summary>
-    /// Checks if the path is from a PluginController route.
-    /// </summary>
-    private static bool IsPluginControllerRoute(string path)
-    {
-        // Detect this by checking how many parts the route has, for example, all PluginController routes will be routed like
+        // if its none of the above, we will have to try to detect if it's a PluginController route, we can detect this by
+        // checking how many parts the route has, for example, all PluginController routes will be routed like
         // Umbraco/MYPLUGINAREA/MYCONTROLLERNAME/{action}/{id}
-        // so if the path contains at a minimum 3 parts: Umbraco + MYPLUGINAREA + MYCONTROLLERNAME then we will have to assume it is a plugin controller for the front-end.
-
-        int count = 0;
-
-        for (int i = 0; i < path.Length; i++)
+        // so if the path contains at a minimum 3 parts: Umbraco + MYPLUGINAREA + MYCONTROLLERNAME then we will have to assume it is a
+        // plugin controller for the front-end.
+        if (urlPath.Split(Constants.CharArrays.ForwardSlash, StringSplitOptions.RemoveEmptyEntries).Length >= 3)
         {
-            char chr = path[i];
-
-            if (chr == '/')
-            {
-                count++;
-                continue;
-            }
-
-            // Check last char so we can properly determine the number of parts, e.g. /url/path/ has two parts, /url/path/test has three.
-            if (count == 3)
-            {
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        // if its anything else we can assume it's back office
+        return true;
     }
 
     /// <summary>

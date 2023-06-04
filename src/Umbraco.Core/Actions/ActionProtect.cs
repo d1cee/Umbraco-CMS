@@ -1,24 +1,23 @@
-// Copyright (c) Umbraco.
+﻿// Copyright (c) Umbraco.
 // See LICENSE for more details.
 
 namespace Umbraco.Cms.Core.Actions;
 
 /// <summary>
-///     This action is invoked when a document is protected or unprotected.
+///     This action is invoked when a document is protected or unprotected
 /// </summary>
 public class ActionProtect : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter"/>
+    /// <summary>
+    ///     The unique action letter
+    /// </summary>
     public const char ActionLetter = 'P';
 
-    /// <inheritdoc cref="IAction.ActionAlias"/>
-    public const string ActionAlias = "protect";
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public char Letter => ActionLetter;
 
-    /// <inheritdoc/>
-    public string Alias => ActionAlias;
+    /// <inheritdoc />
+    public string Alias => "protect";
 
     /// <inheritdoc />
     public string Category => Constants.Conventions.PermissionCategories.AdministrationCategory;

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Dashboards;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Mapping;
 using Umbraco.Cms.Core.Models.ContentEditing;
@@ -11,6 +10,7 @@ using Umbraco.Cms.Core.Models.Membership;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.BackOffice.Filters;

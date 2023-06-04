@@ -17,8 +17,5 @@ public abstract class MovedNotification<T> : ObjectNotification<IEnumerable<Move
     {
     }
 
-    /// <summary>
-    /// Gets a enumeration of <see cref="MoveEventInfo{TEntity}"/> with the moved entities.
-    /// </summary>
     public IEnumerable<MoveEventInfo<T>> MoveInfoCollection => Target;
 }

@@ -3,8 +3,7 @@ import {ConstantHelper, test} from '@umbraco/playwright-testhelpers';
 
 test.describe('Relation Types', () => {
 
-  test.beforeEach(async ({ page, umbracoApi }, testInfo) => {
-    await umbracoApi.report.report(testInfo);
+  test.beforeEach(async ({page, umbracoApi}) => {
     await umbracoApi.login();
   });
 

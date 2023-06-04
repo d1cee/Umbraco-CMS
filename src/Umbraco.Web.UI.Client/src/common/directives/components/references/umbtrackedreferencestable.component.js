@@ -92,7 +92,6 @@
             totalPages: "<",
             headline: "<",
             items: "<",
-            showPublished: "<?",
             showType: "<?",
             showTypeName: "<?",
             showRelationTypeName: "<?",

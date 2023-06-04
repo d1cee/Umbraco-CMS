@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -21,9 +22,9 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services;
 [UmbracoTest(Database = UmbracoTestOptions.Database.NewSchemaPerTest)]
 public class MacroServiceTests : UmbracoIntegrationTest
 {
-
+    
     private IMacroService MacroService => GetRequiredService<IMacroService>();
-
+    
     [SetUp]
     public void SetupTest()
     {

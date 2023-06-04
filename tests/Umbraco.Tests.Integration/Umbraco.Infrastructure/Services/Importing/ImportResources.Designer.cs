@@ -9,6 +9,9 @@
 //------------------------------------------------------------------------------
 
 namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importing {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -20,15 +23,15 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class ImportResources {
-
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal ImportResources() {
         }
-
+        
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -43,7 +46,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -57,7 +60,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -76,7 +79,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("CheckboxList_Content_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -95,7 +98,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("CompositionsTestPackage", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -114,7 +117,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("CompositionsTestPackage_Random", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;umbPackage&gt;
@@ -135,7 +138,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("Dictionary_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -153,7 +156,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("Fanoe_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -179,7 +182,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("InheritedDocTypes_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -207,7 +210,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("MediaTypesAndMedia_Package.xml", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;DocumentType&gt;
@@ -234,7 +237,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("SingleDocType", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;DocumentType&gt;
@@ -261,7 +264,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("SingleDocType_WithCleanupPolicy", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -279,7 +282,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("StandardMvc_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -304,7 +307,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("TemplateOnly_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -329,7 +332,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("TemplateOnly_Updated_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -347,7 +350,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
                 return ResourceManager.GetString("uBlogsy_Package", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
         ///&lt;umbPackage&gt;
@@ -358,8 +361,7 @@ namespace Umbraco.Cms.Tests.Integration.Umbraco.Infrastructure.Services.Importin
         ///  &lt;/info&gt;
         ///  &lt;Documents&gt;
         ///    &lt;DocumentSet importMode=&quot;root&quot;&gt;
-        ///      &lt;XSLTsearch id=&quot;1090&quot; parentID=&quot;-1&quot; level=&quot;1&quot; writerID=&quot;0&quot; creatorID=&quot;0&quot; nodeType=&quot;1087&quot; template=&quot;1086&quot; sortOrder=&quot;39&quot; createDate=&quot;2010-11-09T13:45:22&quot; updateDate=&quot;2010-11-09T14:18:04&quot; nodeName=&quot;Search&quot; urlName=&quot;search&quot; writerName=&quot;Administrator&quot; creatorName=&quot;Administrator&quot; path=&quot;-1,1090&quot; isDoc=&quot;&quot;&gt;
-        /// [rest of string was truncated]&quot;;.
+        ///      &lt;XSLTsearch id=&quot;1090&quot; parentID=&quot;-1&quot; level=&quot;1&quot; writerID=&quot;0&quot; creatorID=&quot;0&quot; nodeType=&quot;1087&quot; template=&quot;1086&quot; sortOrder=&quot;39&quot; createDate=&quot;2010-11-09T13:45:22&quot; updateDate=&quot;2010-11-09T14:18:04&quot; nodeName=&quot;Search&quot; urlName=&quot;search&quot; writerName=&quot;Administrator&quot; creatorName=&quot;Administrator&quot; path=&quot;-1,1090&quot; isDoc=&quot;&quot;&gt;        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string XsltSearch_Package {
             get {

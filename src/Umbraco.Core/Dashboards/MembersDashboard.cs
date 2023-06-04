@@ -7,7 +7,7 @@ public class MembersDashboard : IDashboard
 {
     public string Alias => "memberIntro";
 
-    public string[] Sections => new[] { Constants.Applications.Members };
+    public string[] Sections => new[] { "member" };
 
     public string View => "views/dashboard/members/membersdashboardvideos.html";
 

@@ -14,7 +14,6 @@ public class RegisterModelBuilder : MemberModelBuilderBase
     private string? _memberTypeAlias;
     private string? _redirectUrl;
     private bool _usernameIsEmail;
-    private bool _automaticLogIn = true;
 
     public RegisterModelBuilder(IMemberTypeService memberTypeService, IShortStringHelper shortStringHelper)
         : base(memberTypeService, shortStringHelper)
@@ -45,12 +44,6 @@ public class RegisterModelBuilder : MemberModelBuilderBase
         return this;
     }
 
-    public RegisterModelBuilder WithAutomaticLogIn(bool automaticLogIn = true)
-    {
-        _automaticLogIn = automaticLogIn;
-        return this;
-    }
-
     public RegisterModel Build()
     {
         var providedOrDefaultMemberTypeAlias = _memberTypeAlias ?? Constants.Conventions.MemberTypes.DefaultAlias;
@@ -63,13 +56,11 @@ public class RegisterModelBuilder : MemberModelBuilderBase
 
         var model = new RegisterModel
         {
-            RedirectUrl = _redirectUrl,
             MemberTypeAlias = providedOrDefaultMemberTypeAlias,
             UsernameIsEmail = _usernameIsEmail,
             MemberProperties = _lookupProperties
                 ? GetMemberPropertiesViewModel(memberType)
                 : Enumerable.Empty<MemberPropertyModel>().ToList(),
-            AutomaticLogIn = _automaticLogIn
         };
         return model;
     }

@@ -1,18 +1,14 @@
 using System.Data.Common;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Configuration;
 using Umbraco.Cms.Core.Configuration.Models;
-using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Install;
 using Umbraco.Cms.Core.Install.Models;
 using Umbraco.Cms.Core.Migrations;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Infrastructure.Migrations.Notifications;
 using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Infrastructure.Persistence.Dtos;
@@ -39,7 +35,6 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
         private readonly IMigrationPlanExecutor _migrationPlanExecutor;
         private readonly DatabaseSchemaCreatorFactory _databaseSchemaCreatorFactory;
         private readonly IEnumerable<IDatabaseProviderMetadata> _databaseProviderMetadata;
-        private readonly IEventAggregator _aggregator;
 
         private DatabaseSchemaResult? _databaseSchemaValidationResult;
 
@@ -59,8 +54,7 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
             IOptionsMonitor<ConnectionStrings> connectionStrings,
             IMigrationPlanExecutor migrationPlanExecutor,
             DatabaseSchemaCreatorFactory databaseSchemaCreatorFactory,
-            IEnumerable<IDatabaseProviderMetadata> databaseProviderMetadata,
-            IEventAggregator aggregator)
+            IEnumerable<IDatabaseProviderMetadata> databaseProviderMetadata)
         {
             _scopeProvider = scopeProvider;
             _scopeAccessor = scopeAccessor;
@@ -75,41 +69,6 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
             _migrationPlanExecutor = migrationPlanExecutor;
             _databaseSchemaCreatorFactory = databaseSchemaCreatorFactory;
             _databaseProviderMetadata = databaseProviderMetadata;
-            _aggregator = aggregator;
-        }
-
-        [Obsolete("Use constructor that takes IEventAggregator, this will be removed in V13.")]
-        public DatabaseBuilder(
-            ICoreScopeProvider scopeProvider,
-            IScopeAccessor scopeAccessor,
-            IUmbracoDatabaseFactory databaseFactory,
-            IRuntimeState runtimeState,
-            ILoggerFactory loggerFactory,
-            IKeyValueService keyValueService,
-            IDbProviderFactoryCreator dbProviderFactoryCreator,
-            IConfigManipulator configManipulator,
-            IOptionsMonitor<GlobalSettings> globalSettings,
-            IOptionsMonitor<ConnectionStrings> connectionStrings,
-            IMigrationPlanExecutor migrationPlanExecutor,
-            DatabaseSchemaCreatorFactory databaseSchemaCreatorFactory,
-            IEnumerable<IDatabaseProviderMetadata> databaseProviderMetadata)
-            : this(
-                scopeProvider,
-                scopeAccessor,
-                databaseFactory,
-                runtimeState,
-                loggerFactory,
-                keyValueService,
-                dbProviderFactoryCreator,
-                configManipulator,
-                globalSettings,
-                connectionStrings,
-                migrationPlanExecutor,
-                databaseSchemaCreatorFactory,
-                databaseProviderMetadata,
-                StaticServiceProvider.Instance.GetRequiredService<IEventAggregator>()
-            )
-        {
         }
 
         #region Status
@@ -370,17 +329,12 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
 
                 // upgrade
                 var upgrader = new Upgrader(plan);
-                ExecutedMigrationPlan result = upgrader.Execute(_migrationPlanExecutor, _scopeProvider, _keyValueService);
-
-                _aggregator.Publish(new UmbracoPlanExecutedNotification { ExecutedPlan = result });
-
-                // The migration may have failed, it this is the case, we throw the exception now that we've taken care of business.
-                if (result.Successful is false && result.Exception is not null)
-                {
-                    return HandleInstallException(result.Exception);
-                }
+                upgrader.Execute(_migrationPlanExecutor, _scopeProvider, _keyValueService);
 
                 var message = "<p>Upgrade completed!</p>";
+
+                //now that everything is done, we need to determine the version of SQL server that is executing
+
                 _logger.LogInformation("Database configuration status: {DbConfigStatus}", message);
 
                 return new Result { Message = message, Success = true, Percentage = "100" };
@@ -419,7 +373,7 @@ namespace Umbraco.Cms.Infrastructure.Migrations.Install
             {
                 Message =
                     "The database configuration failed with the following message: " + ex.Message +
-                    $"\n Please check log file for additional information (can be found in '{nameof(LoggingSettings)}.{nameof(LoggingSettings.Directory)}')",
+                    $"\n Please check log file for additional information (can be found in '{Constants.SystemDirectories.LogFiles}')",
                 Success = false,
                 Percentage = "90"
             };

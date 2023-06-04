@@ -3,7 +3,7 @@ namespace Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 /// <summary>
 ///     Attribute that represents an Index
 /// </summary>
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Property)]
 public class IndexAttribute : Attribute
 {
     public IndexAttribute(IndexTypes indexType) => IndexType = indexType;

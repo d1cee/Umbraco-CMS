@@ -24,8 +24,7 @@
                 // optional, if set this will be used for the property alias validation path (hack required because NC changes the actual property.alias :/)
                 propertyAlias: "@",
                 showInherit: "<",
-                inheritsFrom: "<",
-                hideLabel: "<?"
+                inheritsFrom: "<"
             }
         });
 

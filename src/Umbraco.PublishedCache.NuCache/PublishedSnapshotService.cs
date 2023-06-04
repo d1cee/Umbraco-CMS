@@ -298,15 +298,15 @@ internal class PublishedSnapshotService : IPublishedSnapshotService
                             continue; // anomaly
                         }
 
-                        var culture = domain.LanguageIsoCode;
-                        if (string.IsNullOrWhiteSpace(culture))
+                        if (domain.LanguageIsoCode.IsNullOrWhiteSpace())
                         {
                             continue; // anomaly
                         }
 
+                        var culture = domain.LanguageIsoCode;
                         _domainStore.SetLocked(
                             domain.Id,
-                            new Domain(domain.Id, domain.DomainName, domain.RootContentId.Value, culture, domain.IsWildcard, domain.SortOrder));
+                            new Domain(domain.Id, domain.DomainName, domain.RootContentId.Value, culture, domain.IsWildcard));
                         break;
                 }
             }
@@ -832,7 +832,7 @@ internal class PublishedSnapshotService : IPublishedSnapshotService
         {
             foreach (Domain domain in domains
                          .Where(x => x.RootContentId.HasValue && x.LanguageIsoCode.IsNullOrWhiteSpace() == false)
-                         .Select(x => new Domain(x.Id, x.DomainName, x.RootContentId!.Value, x.LanguageIsoCode!, x.IsWildcard, x.SortOrder)))
+                         .Select(x => new Domain(x.Id, x.DomainName, x.RootContentId!.Value, x.LanguageIsoCode!, x.IsWildcard)))
             {
                 _domainStore.SetLocked(domain.Id, domain);
             }

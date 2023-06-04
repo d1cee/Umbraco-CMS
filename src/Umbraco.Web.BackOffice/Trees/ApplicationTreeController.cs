@@ -26,13 +26,14 @@ namespace Umbraco.Cms.Web.BackOffice.Trees;
 [PluginController(Constants.Web.Mvc.BackOfficeTreeArea)]
 public class ApplicationTreeController : UmbracoAuthorizedApiController
 {
-    private readonly ITreeService _treeService;
-    private readonly ISectionService _sectionService;
-    private readonly ILocalizedTextService _localizedTextService;
-    private readonly IControllerFactory _controllerFactory;
     private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
+    private readonly IControllerFactory _controllerFactory;
+    private readonly ILocalizedTextService _localizedTextService;
+    private readonly ISectionService _sectionService;
+    private readonly ITreeService _treeService;
 
-    /// Initializes a new instance of the <see cref="ApplicationTreeController"/> class.
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ApplicationTreeController" /> class.
     /// </summary>
     public ApplicationTreeController(
         ITreeService treeService,
@@ -208,25 +209,21 @@ public class ApplicationTreeController : UmbracoAuthorizedApiController
             throw new ArgumentNullException(nameof(tree));
         }
 
-        // Force tree querystring param
-        Dictionary<string, StringValues>? td = querystring?.ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, StringValues>();
-        td["tree"] = tree.TreeAlias;
-        var qs = new FormCollection(td);
-
-        ActionResult<TreeNodeCollection?>? childrenResult = await GetChildren(tree, id, qs);
+        ActionResult<TreeNodeCollection?>? childrenResult = await GetChildren(tree, id, querystring);
         if (!(childrenResult?.Result is null))
         {
             return new ActionResult<TreeRootNode>(childrenResult.Result);
         }
 
         TreeNodeCollection? children = childrenResult?.Value;
-        ActionResult<TreeNode?>? rootNodeResult = await GetRootNode(tree, qs);
+        ActionResult<TreeNode?>? rootNodeResult = await GetRootNode(tree, querystring);
         if (!(rootNodeResult?.Result is null))
         {
             return rootNodeResult.Result;
         }
 
         TreeNode? rootNode = rootNodeResult?.Value;
+
 
         var sectionRoot = TreeRootNode.CreateSingleTreeRoot(
             Constants.System.RootString,
@@ -259,12 +256,7 @@ public class ApplicationTreeController : UmbracoAuthorizedApiController
             throw new ArgumentNullException(nameof(tree));
         }
 
-        // Force tree querystring param
-        Dictionary<string, StringValues>? td = querystring?.ToDictionary(x => x.Key, x => x.Value) ?? new Dictionary<string, StringValues>();
-        td["tree"] = tree.TreeAlias;
-        var qs = new FormCollection(td);
-
-        ActionResult<object> result = await GetApiControllerProxy(tree.TreeControllerType, "GetRootNode", qs);
+        ActionResult<object> result = await GetApiControllerProxy(tree.TreeControllerType, "GetRootNode", querystring);
 
         // return null if the user isn't authorized to view that tree
         if (!((ForbidResult?)result.Result is null))
@@ -276,7 +268,7 @@ public class ApplicationTreeController : UmbracoAuthorizedApiController
         TreeNode? rootNode = null;
         if (controller is not null)
         {
-            ActionResult<TreeNode?> rootNodeResult = await controller.GetRootNode(qs);
+            ActionResult<TreeNode?> rootNodeResult = await controller.GetRootNode(querystring);
             if (!(rootNodeResult.Result is null))
             {
                 return rootNodeResult.Result;

@@ -51,6 +51,6 @@ internal class ExternalLoginDto
     /// </summary>
     [Column("userData")]
     [NullSetting(NullSetting = NullSettings.Null)]
-    [SpecialDbType(SpecialDbTypes.NVARCHARMAX)]
+    [SpecialDbType(SpecialDbTypes.NTEXT)]
     public string? UserData { get; set; }
 }

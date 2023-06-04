@@ -8,7 +8,6 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Core.PropertyEditors.ValueConverters;
 
-[Obsolete("Nested content is obsolete, will be removed in V13")]
 public abstract class NestedContentValueConverterBase : PropertyValueConverterBase
 {
     private readonly IPublishedSnapshotAccessor _publishedSnapshotAccessor;

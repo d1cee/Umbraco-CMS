@@ -1,7 +1,7 @@
-angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerController",
+﻿angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerController",
     function ($scope, angularHelper, $element, eventsService) {
 
-        const vm = this;
+        var vm = this;
 
         vm.add = add;
         vm.remove = remove;
@@ -15,9 +15,9 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
         vm.labelEnabled = false;
         vm.editItem = null;
 
-        // NOTE: We need to make each color an object, not just a string because you cannot 2-way bind to a primitive.
-        const defaultColor = "000000";
-        const defaultLabel = null;
+        //NOTE: We need to make each color an object, not just a string because you cannot 2-way bind to a primitive.
+        var defaultColor = "000000";
+        var defaultLabel = null;
 
         $scope.newColor = defaultColor;
         $scope.newLabel = defaultLabel;
@@ -31,12 +31,12 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
             showAlpha: false
         };
 
-        function hide() {
+        function hide(color) {
             // show the add button
             $element.find(".btn.add").show();
         }
 
-        function show() {
+        function show(color) {
             // hide the add button
             $element.find(".btn.add").hide();
         }
@@ -48,26 +48,21 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
                 }
             });
         }
-
         var evts = [];
         evts.push(eventsService.on("toggleValue", function (e, args) {
-            if (args.inputId === "useLabel") {
-               vm.labelEnabled = args.value;
-            }
+            vm.labelEnabled = args.value;
         }));
-
         $scope.$on('$destroy', function () {
             for (var e in evts) {
                 eventsService.unsubscribe(evts[e]);
             }
         });
-
         if (!Utilities.isArray($scope.model.value)) {
             //make an array from the dictionary
             var items = [];
             for (var i in $scope.model.value) {
                 var oldValue = $scope.model.value[i];
-                if (Object.prototype.hasOwnProperty.call(oldValue, "value")) {
+                if (oldValue.hasOwnProperty("value")) {
                     items.push({
                         value: oldValue.value,
                         label: oldValue.label,
@@ -78,7 +73,7 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
                     items.push({
                         value: oldValue,
                         label: oldValue,
-                        sortOrder: oldValue.sortOrder,
+                        sortOrder: sortOrder,
                         id: i
                     });
                 }
@@ -92,9 +87,9 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
         }
 
         // ensure labels
-        for (var ii = 0; ii < $scope.model.value.length; ii++) {
-            var item = $scope.model.value[ii];
-            item.label = Object.prototype.hasOwnProperty.call(item, "label") ? item.label : item.value;
+        for (var i = 0; i < $scope.model.value.length; i++) {
+            var item = $scope.model.value[i];
+            item.label = item.hasOwnProperty("label") ? item.label : item.value;
         }
 
         function validLabel(label) {
@@ -127,20 +122,11 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
                             label: newLabel
                         });
                     } else {
-
-                        if(vm.editItem.value === vm.editItem.label && vm.editItem.value === newLabel) {
-                          vm.editItem.label = $scope.newColor;
-
-                        }
-                         else {
-                          vm.editItem.label = newLabel;
-                        }
-
                         vm.editItem.value = $scope.newColor;
-
+                        vm.editItem.label = newLabel;
                         vm.editItem = null;
                     }
-
+                    
                     $scope.newLabel = "";
                     $scope.hasError = false;
                     $scope.focusOnNew = true;
@@ -183,7 +169,7 @@ angular.module("umbraco").controller("Umbraco.PrevalueEditors.MultiColorPickerCo
             //handle: ".handle, .thumbnail",
             items: '> div.control-group',
             tolerance: 'pointer',
-            update: function () {
+            update: function (e, ui) {
                 setDirty();
             }
         };

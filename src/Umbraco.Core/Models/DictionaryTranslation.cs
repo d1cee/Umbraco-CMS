@@ -30,14 +30,12 @@ public class DictionaryTranslation : EntityBase, IDictionaryTranslation
         Key = uniqueId;
     }
 
-    [Obsolete("Please use constructor that accepts ILanguage. This will be removed in V13.")]
     public DictionaryTranslation(int languageId, string value)
     {
         LanguageId = languageId;
         _value = value;
     }
 
-    [Obsolete("Please use constructor that accepts ILanguage. This will be removed in V13.")]
     public DictionaryTranslation(int languageId, string value, Guid uniqueId)
     {
         LanguageId = languageId;
@@ -58,7 +56,6 @@ public class DictionaryTranslation : EntityBase, IDictionaryTranslation
     ///     returned
     ///     on a callback.
     /// </remarks>
-    [Obsolete("This will be removed in V13. From V13 onwards you should get languages by ISO code from ILanguageService.")]
     [DataMember]
     [DoNotClone]
     public ILanguage? Language
@@ -86,7 +83,6 @@ public class DictionaryTranslation : EntityBase, IDictionaryTranslation
         }
     }
 
-    [Obsolete("This will be replaced by language ISO code in V13.")]
     public int LanguageId { get; private set; }
 
     /// <summary>

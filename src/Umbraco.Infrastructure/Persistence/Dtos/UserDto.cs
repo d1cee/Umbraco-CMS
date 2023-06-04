@@ -111,7 +111,7 @@ public class UserDto
     /// </summary>
     [Column("tourData")]
     [NullSetting(NullSetting = NullSettings.Null)]
-    [SpecialDbType(SpecialDbTypes.NVARCHARMAX)]
+    [SpecialDbType(SpecialDbTypes.NTEXT)]
     public string? TourData { get; set; }
 
     [ResultColumn]

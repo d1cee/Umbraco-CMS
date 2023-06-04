@@ -1,4 +1,4 @@
-// Copyright (c) Umbraco.
+﻿// Copyright (c) Umbraco.
 // See LICENSE for more details.
 
 namespace Umbraco.Cms.Core.Actions;
@@ -8,17 +8,16 @@ namespace Umbraco.Cms.Core.Actions;
 /// </summary>
 public class ActionCopy : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter" />
+    /// <summary>
+    ///     The unique action letter
+    /// </summary>
     public const char ActionLetter = 'O';
 
-    /// <inheritdoc cref="IAction.ActionAlias" />
-    public const string ActionAlias = "copy";
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public char Letter => ActionLetter;
 
-    /// <inheritdoc/>
-    public string Alias => ActionAlias;
+    /// <inheritdoc />
+    public string Alias => "copy";
 
     /// <inheritdoc />
     public string Category => Constants.Conventions.PermissionCategories.StructureCategory;

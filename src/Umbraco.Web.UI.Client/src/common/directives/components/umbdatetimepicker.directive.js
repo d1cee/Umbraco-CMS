@@ -72,7 +72,7 @@ Use this directive to render a date time picker
 
     var umbDateTimePicker = {
         template: '<ng-transclude>' +
-            '<input type="text" ng-if="!$ctrl.options.inline" ng-model="$ctrl.ngModel" placeholder="Select Date.." ng-attr-aria-labelledby="{{$ctrl.label}}"></input>' +
+            '<input type="text" ng-if="!$ctrl.options.inline" ng-model="$ctrl.ngModel" placeholder="Select Date.."></input>' +
             '<div ng-if="$ctrl.options.inline"></div>' +
             '</ng-transclude>',
         controller: umbDateTimePickerCtrl,
@@ -88,8 +88,7 @@ Use this directive to render a date time picker
             onYearChange: '&?',
             onReady: '&?',
             onValueUpdate: '&?',
-            onDayCreate: '&?',
-            label: '@'
+            onDayCreate: '&?'
         }
     };
 

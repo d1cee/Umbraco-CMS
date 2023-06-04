@@ -8,23 +8,13 @@ namespace Umbraco.Cms.Core.Xml;
 /// </summary>
 public class UmbracoXPathPathSyntaxParser
 {
-    [Obsolete("This will be removed in Umbraco 13. Use ParseXPathQuery which accepts a parentId instead")]
-    public static string ParseXPathQuery(
-        string xpathExpression,
-        int? nodeContextId,
-        Func<int, IEnumerable<string>?> getPath,
-        Func<int, bool> publishedContentExists) => ParseXPathQuery(xpathExpression, nodeContextId, null, getPath, publishedContentExists);
-
     /// <summary>
     ///     Parses custom umbraco xpath expression
     /// </summary>
     /// <param name="xpathExpression">The Xpath expression</param>
     /// <param name="nodeContextId">
-    ///     The current node id context of executing the query - null if there is no current node.
-    /// </param>
-    /// <param name="parentId">
-    ///     The parent node id of the current node id context of executing the query. With this we can determine the
-    ///     $parent and $site parameters even if the current node is not yet published.
+    ///     The current node id context of executing the query - null if there is no current node, in which case
+    ///     some of the parameters like $current, $parent, $site will be disabled
     /// </param>
     /// <param name="getPath">The callback to create the nodeId path, given a node Id</param>
     /// <param name="publishedContentExists">The callback to return whether a published node exists based on Id</param>
@@ -32,7 +22,6 @@ public class UmbracoXPathPathSyntaxParser
     public static string ParseXPathQuery(
         string xpathExpression,
         int? nodeContextId,
-        int? parentId,
         Func<int, IEnumerable<string>?> getPath,
         Func<int, bool> publishedContentExists)
     {
@@ -95,27 +84,19 @@ public class UmbracoXPathPathSyntaxParser
         // parseable items:
         var vars = new Dictionary<string, Func<string, string>>();
 
-        if (parentId.HasValue)
+        // These parameters must have a node id context
+        if (nodeContextId.HasValue)
         {
-            vars.Add("$parent", q =>
+            vars.Add("$current", q =>
             {
-                var path = getPath(parentId.Value)?.ToArray();
-                var closestPublishedAncestorId = getClosestPublishedAncestor(path);
-                return q.Replace("$parent", string.Format(rootXpath, closestPublishedAncestorId));
+                var closestPublishedAncestorId = getClosestPublishedAncestor(getPath(nodeContextId.Value));
+                return q.Replace("$current", string.Format(rootXpath, closestPublishedAncestorId));
             });
 
-            vars.Add("$site", q =>
-            {
-                var closestPublishedAncestorId = getClosestPublishedAncestor(getPath(parentId.Value));
-                return q.Replace(
-                    "$site",
-                    string.Format(rootXpath, closestPublishedAncestorId) + "/ancestor-or-self::*[@level = 1]");
-            });
-        }
-        else if (nodeContextId.HasValue)
-        {
             vars.Add("$parent", q =>
             {
+                // remove the first item in the array if its the current node
+                // this happens when current is published, but we are looking for its parent specifically
                 var path = getPath(nodeContextId.Value)?.ToArray();
                 if (path?[0] == nodeContextId.ToString())
                 {
@@ -132,16 +113,6 @@ public class UmbracoXPathPathSyntaxParser
                 return q.Replace(
                     "$site",
                     string.Format(rootXpath, closestPublishedAncestorId) + "/ancestor-or-self::*[@level = 1]");
-            });
-        }
-
-        // These parameters must have a node id context
-        if (nodeContextId.HasValue)
-        {
-            vars.Add("$current", q =>
-            {
-                var closestPublishedAncestorId = getClosestPublishedAncestor(getPath(nodeContextId.Value));
-                return q.Replace("$current", string.Format(rootXpath, closestPublishedAncestorId));
             });
         }
 

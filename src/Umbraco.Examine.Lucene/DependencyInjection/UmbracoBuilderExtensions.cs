@@ -30,8 +30,6 @@ public static class UmbracoBuilderExtensions
                 .ExternalIndexName)
             .AddExamineLuceneIndex<UmbracoMemberIndex, ConfigurationEnabledDirectoryFactory>(Constants.UmbracoIndexes
                 .MembersIndexName)
-            .AddExamineLuceneIndex<DeliveryApiContentIndex, ConfigurationEnabledDirectoryFactory>(Constants.UmbracoIndexes
-                .DeliveryApiContentIndexName)
             .ConfigureOptions<ConfigureIndexOptions>();
 
         services.AddSingleton<IApplicationRoot, UmbracoApplicationRoot>();

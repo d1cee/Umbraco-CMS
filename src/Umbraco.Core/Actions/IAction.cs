@@ -13,14 +13,8 @@ namespace Umbraco.Cms.Core.Actions;
 /// </remarks>
 public interface IAction : IDiscoverable
 {
-    /// <inheritdoc cref="Letter"/>
-    const char ActionLetter = default;
-
-    /// <inheritdoc cref="Alias"/>
-    const string ActionAlias = default;
-
     /// <summary>
-    ///     Gets the letter used to assign a permission (must be unique).
+    ///     Gets the letter used to assign a permission (must be unique)
     /// </summary>
     char Letter { get; }
 
@@ -40,8 +34,7 @@ public interface IAction : IDiscoverable
     string Icon { get; }
 
     /// <summary>
-    ///     Gets the alias for this action (must be unique).
-    ///     This is all lower-case because of case sensitive filesystems, see issue: https://github.com/umbraco/Umbraco-CMS/issues/11670.
+    ///     Gets the alias for this action (must be unique)
     /// </summary>
     string Alias { get; }
 

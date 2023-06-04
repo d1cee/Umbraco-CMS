@@ -1,69 +1,25 @@
 (function () {
     'use strict';
 
-    function GridInlineBlockEditor($scope, $compile, $element) {
+    function GridInlineBlockEditor($scope, $element) {
 
         const vm = this;
 
-        var propertyEditorElement;
-
         vm.$onInit = function() {
-            
-            vm.property = $scope.block.content.variants[0].tabs[0]?.properties[0];
+           const host =  $element[0].getRootNode();
 
-            if (vm.property) {
-                vm.propertySlotName = "umbBlockGridProxy_" + vm.property.alias + "_" + String.CreateGuid();
-                
-                propertyEditorElement = $('<div slot="{{vm.propertySlotName}}"></div>');
-                propertyEditorElement.html(
-                    `
-                    <umb-property
-                        data-element="grid-block-property-{{vm.property.alias}}"
-                        property="vm.property"
-                        node="$scope.block.content"
-                        hide-label="true">
+           console.log(document.styleSheets)
 
-                        <umb-property-editor 
-                            model="vm.property" 
-                            preview="$scope.api.internal.readonly" 
-                            ng-attr-readonly="{{$scope.api.internal.readonly || undefined}}">
-                        </umb-property-editor>
+            for (const stylesheet of document.styleSheets) {
 
-                    </umb-property>
-                    `
-                );
-                
-                $element[0].addEventListener('umb-rte-focus', onRteFocus);
-                $element[0].addEventListener('umb-rte-blur', onRteBlur);
+                console.log(stylesheet);
+                const styleEl = document.createElement('link');
+                styleEl.setAttribute('rel', 'stylesheet');
+                styleEl.setAttribute('type', stylesheet.type);
+                styleEl.setAttribute('href', stylesheet.href);
 
-                const connectedCallback = () => {
-                    
-                    $compile(propertyEditorElement)($scope)
-                };
-                
-                const event = new CustomEvent("UmbBlockGrid_AppendProperty", {composed: true, bubbles: true, detail: {'property': propertyEditorElement[0], 'contentUdi': $scope.block.layout.contentUdi, 'slotName': vm.propertySlotName, 'connectedCallback':connectedCallback}});
-                
-                $element[0].dispatchEvent(event);
-                
+                host.appendChild(styleEl);
             }
-        }
-
-        function onRteFocus() {
-            $element[0].classList.add('umb-block-grid--force-focus');
-        }
-        function onRteBlur() {
-            $element[0].classList.remove('umb-block-grid--force-focus');
-        }
-
-        vm.$onDestroy = function() {
-            if (vm.property) {
-                const event = new CustomEvent("UmbBlockGrid_RemoveProperty", {composed: true, bubbles: true, detail: {'slotName': vm.propertySlotName}});
-                $element[0].dispatchEvent(event);
-            }
-
-            $element[0].removeEventListener('umb-rte-focus', onRteFocus);
-            $element[0].removeEventListener('umb-rte-blur', onRteBlur);
-            propertyEditorElement = null;
         }
 
     }

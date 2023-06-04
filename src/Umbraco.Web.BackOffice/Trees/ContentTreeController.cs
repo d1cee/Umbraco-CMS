@@ -109,11 +109,6 @@ public class ContentTreeController : ContentTreeControllerBase, ISearchableTreeW
     {
         var culture = queryStrings?["culture"].ToString();
 
-        if(culture.IsNullOrWhiteSpace())
-        {
-            culture = _localizationService.GetDefaultLanguageIsoCode();
-        }
-
         IEnumerable<MenuItem> allowedUserOptions = GetAllowedUserMenuItemsForNode(entity);
         if (CanUserAccessNode(entity, allowedUserOptions, culture))
         {
@@ -136,7 +131,7 @@ public class ContentTreeController : ContentTreeControllerBase, ISearchableTreeW
 
             var documentEntity = (IDocumentEntitySlim)entity;
 
-            if (!documentEntity.Variations.VariesByCulture() || culture.IsNullOrWhiteSpace())
+            if (!documentEntity.Variations.VariesByCulture())
             {
                 if (!documentEntity.Published)
                 {

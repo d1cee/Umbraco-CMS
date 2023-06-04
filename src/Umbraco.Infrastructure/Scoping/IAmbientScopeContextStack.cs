@@ -2,7 +2,7 @@ using Umbraco.Cms.Core.Scoping;
 
 namespace Umbraco.Cms.Infrastructure.Scoping;
 
-public interface IAmbientScopeContextStack
+internal interface IAmbientScopeContextStack
 {
     IScopeContext? AmbientContext { get; }
     IScopeContext Pop();

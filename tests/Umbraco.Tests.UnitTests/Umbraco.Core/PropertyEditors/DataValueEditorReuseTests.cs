@@ -95,8 +95,7 @@ public class DataValueEditorReuseTests
             _dataValueEditorFactoryMock.Object,
             new PropertyEditorCollection(new DataEditorCollection(Enumerable.Empty<IDataEditor>)),
             Mock.Of<IIOHelper>(),
-            Mock.Of<IEditorConfigurationParser>(),
-            Mock.Of<IBlockValuePropertyIndexValueFactory>());
+            Mock.Of<IEditorConfigurationParser>());
 
         // block list is *not* set to reuse its data value editor
         var dataValueEditor1 = blockListPropertyEditor.GetValueEditor();
@@ -116,8 +115,7 @@ public class DataValueEditorReuseTests
             _dataValueEditorFactoryMock.Object,
             new PropertyEditorCollection(new DataEditorCollection(Enumerable.Empty<IDataEditor>)),
             Mock.Of<IIOHelper>(),
-            Mock.Of<IEditorConfigurationParser>(),
-            Mock.Of<IBlockValuePropertyIndexValueFactory>());
+            Mock.Of<IEditorConfigurationParser>());
 
         // no matter what, a property editor should never reuse its data value editor when created *with* configuration
         var dataValueEditor1 = blockListPropertyEditor.GetValueEditor("config");

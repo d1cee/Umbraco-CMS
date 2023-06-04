@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using NUnit.Framework;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Tests.UnitTests.AutoFixture;

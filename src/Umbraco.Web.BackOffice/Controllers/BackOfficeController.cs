@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -121,13 +120,6 @@ public class BackOfficeController : UmbracoController
         // Check if we not are in an run state, if so we need to redirect
         if (_runtimeState.Level != RuntimeLevel.Run)
         {
-            if (_runtimeState.Level == RuntimeLevel.Upgrade)
-            {
-                return RedirectToAction(nameof(AuthorizeUpgrade), routeValues: new RouteValueDictionary()
-                {
-                    ["redir"] = _globalSettings.GetBackOfficePath(_hostingEnvironment),
-                });
-            }
             return Redirect("/");
         }
 
@@ -263,7 +255,7 @@ public class BackOfficeController : UmbracoController
     [AllowAnonymous]
     public async Task<Dictionary<string, Dictionary<string, string>>> LocalizedText(string? culture = null)
     {
-        CultureInfo? cultureInfo = null;
+        CultureInfo? cultureInfo;
         if (string.IsNullOrWhiteSpace(culture))
         {
             // Force authentication to occur since this is not an authorized endpoint, we need this to get a user.
@@ -272,12 +264,9 @@ public class BackOfficeController : UmbracoController
             // It's entirely likely for a user to have a different culture in the backoffice, than their system.
             IIdentity? user = authenticationResult.Principal?.Identity;
 
-            if (authenticationResult.Succeeded && user is not null)
-            {
-                cultureInfo = user.GetCulture();
-            }
-
-            cultureInfo ??= CultureInfo.GetCultureInfo(_globalSettings.DefaultUILanguage);
+            cultureInfo = authenticationResult.Succeeded && user is not null
+                ? user.GetCulture()
+                : CultureInfo.GetCultureInfo(_globalSettings.DefaultUILanguage);
         }
         else
         {

@@ -1,6 +1,6 @@
 namespace Umbraco.Cms.Core.Scoping;
 
-public class ScopeContext : IScopeContext, IInstanceIdentifiable
+internal class ScopeContext : IScopeContext, IInstanceIdentifiable
 {
     private Dictionary<string, IEnlistedObject>? _enlisted;
 

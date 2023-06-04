@@ -8,17 +8,17 @@ namespace Umbraco.Cms.Core.Actions;
 /// </summary>
 public class ActionAssignDomain : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter" />
+    /// <summary>
+    ///     The unique action letter
+    /// </summary>
     public const char ActionLetter = 'I';
 
-    /// <inheritdoc cref="IAction.ActionAlias" />
-    public const string ActionAlias = "assigndomain";
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public char Letter => ActionLetter;
 
-    /// <inheritdoc/>
-    public string Alias => ActionAlias;
+    /// <inheritdoc />
+    // This is all lower-case because of case sensitive filesystems, see issue: https://github.com/umbraco/Umbraco-CMS/issues/11670
+    public string Alias => "assigndomain";
 
     /// <inheritdoc />
     public string Category => Constants.Conventions.PermissionCategories.AdministrationCategory;

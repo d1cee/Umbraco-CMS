@@ -4,8 +4,7 @@ import {PartialViewMacroBuilder} from "@umbraco/json-models-builders";
 
 test.describe('Partial View Macro Files', () => {
 
-    test.beforeEach(async ({ page, umbracoApi }, testInfo) => {
-        await umbracoApi.report.report(testInfo);
+    test.beforeEach(async ({page, umbracoApi}) => {
         await umbracoApi.login();
     });
 
@@ -35,10 +34,10 @@ test.describe('Partial View Macro Files', () => {
         await umbracoUi.setEditorHeaderName(name);
 
         //Save
-        await umbracoUi.clickElement(umbracoUi.getButtonByLabelKey(ConstantHelper.buttons.save));
+        await page.locator('.btn-success').click();
 
         //Assert
-        await umbracoUi.isSuccessNotificationVisible({timeout:10000});
+        await umbracoUi.isSuccessNotificationVisible();
 
         //Clean up
         await cleanup(umbracoApi, name);
@@ -55,12 +54,12 @@ test.describe('Partial View Macro Files', () => {
 
         // Type name
         await umbracoUi.setEditorHeaderName(name);
-        
+
         // Save
-        await umbracoUi.clickElement(umbracoUi.getButtonByLabelKey(ConstantHelper.buttons.save));
+        await page.locator('.btn-success').click();
 
         // Assert
-        await umbracoUi.isSuccessNotificationVisible({timeout:10000});
+        await umbracoUi.isSuccessNotificationVisible();
 
         // Clean
         await cleanup(umbracoApi, name);
@@ -82,10 +81,10 @@ test.describe('Partial View Macro Files', () => {
         await umbracoUi.setEditorHeaderName(name);
 
         // Save
-        await umbracoUi.clickElement(umbracoUi.getButtonByLabelKey(ConstantHelper.buttons.save));
+        await page.locator('.btn-success').click();
 
         // Assert
-        await umbracoUi.isSuccessNotificationVisible({timeout:10000});
+        await umbracoUi.isSuccessNotificationVisible();
 
         // Clean
         await cleanup(umbracoApi, name);
@@ -145,7 +144,7 @@ test.describe('Partial View Macro Files', () => {
         await umbracoUi.clickElement(umbracoUi.getButtonByLabelKey(ConstantHelper.buttons.save));
 
         // Assert
-        await umbracoUi.isSuccessNotificationVisible({timeout:10000});
+        await umbracoUi.isSuccessNotificationVisible();
 
         await cleanup(umbracoApi, name);
     });

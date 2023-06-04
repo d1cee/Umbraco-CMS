@@ -74,7 +74,6 @@ public class Language : EntityBase, ILanguage
     }
 
     /// <inheritdoc />
-    [Obsolete("This will be replaced by fallback language ISO code in V13.")]
     public int? FallbackLanguageId
     {
         get => _fallbackLanguageId;

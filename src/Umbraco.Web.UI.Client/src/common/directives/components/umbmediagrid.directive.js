@@ -203,9 +203,12 @@ Use this directive to generate a thumbnail grid of media items.
                 } else {
                     return scope.onlyFolders !== "true";
                 }
+
+                return false;
+
             }
 
-            function setOriginalSize(item) {
+            function setOriginalSize(item, maxHeight) {
 
                 //set to a square by default
                 item.width = itemDefaultWidth;

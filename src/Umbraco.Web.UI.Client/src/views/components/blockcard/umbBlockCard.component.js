@@ -14,7 +14,7 @@
             }
         });
 
-    function BlockCardController($scope, umbRequestHelper, mediaHelper) {
+    function BlockCardController($scope, umbRequestHelper) {
 
         const vm = this;
         vm.styleBackgroundImage = "none";
@@ -30,11 +30,7 @@
         };
 
         vm.$onChanges = function () {
-            vm.icon = vm.elementTypeModel ? vm.elementTypeModel.icon : 'icon-block';
-            if (vm.blockConfigModel.iconColor) {
-                // enforce configured icon color for catalogue appearance instead of icon color from element type
-                vm.icon = vm.icon.split(" ")[0];
-            }
+            vm.icon = vm.elementTypeModel ? vm.elementTypeModel.icon.split(" ")[0] : 'icon-block';
         };
 
         vm.$onDestroy = function () {
@@ -49,10 +45,8 @@
 
             var path = umbRequestHelper.convertVirtualToAbsolutePath(vm.blockConfigModel.thumbnail);
             if (path.toLowerCase().endsWith(".svg") === false) {
-
-              path = mediaHelper.getThumbnailFromPath(path);
+                path += "?width=400";
             }
-
             vm.styleBackgroundImage = `url('${path}')`;
         };
 

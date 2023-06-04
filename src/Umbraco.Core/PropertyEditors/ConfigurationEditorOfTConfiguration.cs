@@ -1,13 +1,13 @@
-// Copyright (c) Umbraco.
+﻿// Copyright (c) Umbraco.
 // See LICENSE for more details.
 
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Core.PropertyEditors;
@@ -125,7 +125,6 @@ public abstract class ConfigurationEditor<TConfiguration> : ConfigurationEditor
                     PropertyType = property.PropertyType,
                     Description = attribute.Description,
                     HideLabel = attribute.HideLabel,
-                    SortOrder = attribute.SortOrder,
                     View = attributeView,
                 };
 
@@ -150,8 +149,6 @@ public abstract class ConfigurationEditor<TConfiguration> : ConfigurationEditor
 
             field.PropertyName = property.Name;
             field.PropertyType = property.PropertyType;
-
-            field.SortOrder = attribute.SortOrder;
 
             if (!string.IsNullOrWhiteSpace(attribute.Key))
             {
@@ -185,6 +182,6 @@ public abstract class ConfigurationEditor<TConfiguration> : ConfigurationEditor
             }
         }
 
-        return fields.OrderBy(x => x.SortOrder).ToList();
+        return fields;
     }
 }

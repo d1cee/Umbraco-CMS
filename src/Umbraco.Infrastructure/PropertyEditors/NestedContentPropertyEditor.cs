@@ -5,13 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Models.Editors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Core.PropertyEditors;
@@ -21,22 +21,20 @@ namespace Umbraco.Cms.Core.PropertyEditors;
 /// </summary>
 [DataEditor(
     Constants.PropertyEditors.Aliases.NestedContent,
-    "Nested Content (legacy)",
+    "Nested Content",
     "nestedcontent",
     ValueType = ValueTypes.Json,
     Group = Constants.PropertyEditors.Groups.Lists,
     Icon = "icon-thumbnail-list",
-    ValueEditorIsReusable = false,
-    IsDeprecated = true)]
-[Obsolete("Nested content is obsolete, will be removed in V13")]
+    ValueEditorIsReusable = false)]
 public class NestedContentPropertyEditor : DataEditor
 {
     public const string ContentTypeAliasPropertyKey = "ncContentTypeAlias";
     private readonly IEditorConfigurationParser _editorConfigurationParser;
     private readonly IIOHelper _ioHelper;
-    private readonly INestedContentPropertyIndexValueFactory _nestedContentPropertyIndexValueFactory;
 
-    [Obsolete("Use non-obsoleted ctor. This will be removed in Umbraco 12.")]
+    // Scheduled for removal in v12
+    [Obsolete("Please use constructor that takes an IEditorConfigurationParser instead")]
     public NestedContentPropertyEditor(
         IDataValueEditorFactory dataValueEditorFactory,
         IIOHelper ioHelper)
@@ -44,34 +42,16 @@ public class NestedContentPropertyEditor : DataEditor
     {
     }
 
-    [Obsolete("Use non-obsoleted ctor. This will be removed in Umbraco 13.")]
     public NestedContentPropertyEditor(
         IDataValueEditorFactory dataValueEditorFactory,
         IIOHelper ioHelper,
         IEditorConfigurationParser editorConfigurationParser)
-        : this(
-            dataValueEditorFactory,
-            ioHelper,
-            editorConfigurationParser,
-            StaticServiceProvider.Instance.GetRequiredService<INestedContentPropertyIndexValueFactory>())
-    {
-
-    }
-
-    public NestedContentPropertyEditor(
-        IDataValueEditorFactory dataValueEditorFactory,
-        IIOHelper ioHelper,
-        IEditorConfigurationParser editorConfigurationParser,
-        INestedContentPropertyIndexValueFactory nestedContentPropertyIndexValueFactory)
         : base(dataValueEditorFactory)
     {
         _ioHelper = ioHelper;
         _editorConfigurationParser = editorConfigurationParser;
-        _nestedContentPropertyIndexValueFactory = nestedContentPropertyIndexValueFactory;
         SupportsReadOnly = true;
     }
-
-    public override IPropertyIndexValueFactory PropertyIndexValueFactory => _nestedContentPropertyIndexValueFactory;
 
     #region Pre Value Editor
 
@@ -88,7 +68,7 @@ public class NestedContentPropertyEditor : DataEditor
     protected override IDataValueEditor CreateValueEditor()
         => DataValueEditorFactory.Create<NestedContentPropertyValueEditor>(Attribute!);
 
-    internal class NestedContentPropertyValueEditor : DataValueEditor, IDataValueReference, IDataValueTags
+    internal class NestedContentPropertyValueEditor : DataValueEditor, IDataValueReference
     {
         private readonly IDataTypeService _dataTypeService;
         private readonly ILogger<NestedContentPropertyEditor> _logger;
@@ -163,36 +143,6 @@ public class NestedContentPropertyEditor : DataEditor
                     IEnumerable<UmbracoEntityReference> refs = reference.GetReferences(val);
 
                     result.AddRange(refs);
-                }
-            }
-
-            return result;
-        }
-
-        /// <inheritdoc />
-        public IEnumerable<ITag> GetTags(object? value, object? dataTypeConfiguration, int? languageId)
-        {
-            IReadOnlyList<NestedContentValues.NestedContentRowValue> rows =
-                _nestedContentValues.GetPropertyValues(value);
-
-            var result = new List<ITag>();
-
-            foreach (NestedContentValues.NestedContentRowValue row in rows.ToList())
-            {
-                foreach (KeyValuePair<string, NestedContentValues.NestedContentPropertyValue> prop in row.PropertyValues
-                             .ToList())
-                {
-                    IDataEditor? propEditor = _propertyEditors[prop.Value.PropertyType.PropertyEditorAlias];
-
-                    IDataValueEditor? valueEditor = propEditor?.GetValueEditor();
-                    if (valueEditor is not IDataValueTags tagsProvider)
-                    {
-                        continue;
-                    }
-
-                    object? configuration = _dataTypeService.GetDataType(prop.Value.PropertyType.DataTypeKey)?.Configuration;
-
-                    result.AddRange(tagsProvider.GetTags(prop.Value.Value, configuration, languageId));
                 }
             }
 

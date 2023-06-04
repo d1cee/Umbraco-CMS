@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using AutoFixture.NUnit3;
 
 namespace Umbraco.Cms.Tests.UnitTests.AutoFixture;

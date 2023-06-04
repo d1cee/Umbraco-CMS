@@ -44,25 +44,23 @@
     }
     
     function closestColumnSpanOption(target, map, max) {
-        if(map.length > 0) {
-            const result = map.reduce((a, b) => {
-                if (a.columnSpan > max) {
-                    return b;
-                }
-                let aDiff = Math.abs(a.columnSpan - target);
-                let bDiff = Math.abs(b.columnSpan - target);
-        
-                if (aDiff === bDiff) {
-                    return a.columnSpan < b.columnSpan ? a : b;
-                } else {
-                    return bDiff < aDiff ? b : a;
-                }
-            });
-            if(result) {
-                return result;
+        const result = map.reduce((a, b) => {
+            if (a.columnSpan > max) {
+                return b;
             }
+            let aDiff = Math.abs(a.columnSpan - target);
+            let bDiff = Math.abs(b.columnSpan - target);
+    
+            if (aDiff === bDiff) {
+                return a.columnSpan < b.columnSpan ? a : b;
+            } else {
+                return bDiff < aDiff ? b : a;
+            }
+        });
+        if(result) {
+            return result;
         }
-        return null;
+        return max;
     }
 
 
@@ -88,17 +86,11 @@
                 areaKey: "<",
                 propertyEditorForm: "<?",
                 depth: "@"
-            },
-            require: {
-                umbBlockGridEntries: "?^^umbBlockGridEntries"
             }
         }
     );
 
-    function BlockGridEntryController($scope, $element, $timeout) {
-
-        let updateInlineCreateTimeout;
-        let updateInlineCreateRaf;
+    function BlockGridEntryController($scope, $element) {
 
         const unsubscribe = [];
         const vm = this;
@@ -106,36 +98,9 @@
         vm.isHoveringArea = false;
         vm.isScaleMode = false;
         vm.layoutColumnsInt = 0;
-        vm.inlineCreateAboveWidth = "";
-        vm.hideInlineCreateAbove = true;
         vm.hideInlineCreateAfter = true;
-        vm.canScale = false;
-
-        vm.proxyProperties = [];
-        vm.onAppendProxyProperty = (event) => {
-            // Only insert a proxy slot for the direct Block of this entry (as all the blocks share the same ShadowDom though they are slotted into each other when nested through areas.)
-            if (event.detail.contentUdi === vm.layoutEntry.contentUdi) {
-                vm.proxyProperties.push({
-                    slotName: event.detail.slotName
-                });
-                $scope.$evalAsync();
-            }
-        };
-        vm.onRemoveProxyProperty = (event) => {
-            // Only react to proxies from the direct Block of this entry:
-            if (event.detail.contentUdi === vm.layoutEntry.contentUdi) {
-                const index = vm.proxyProperties.findIndex(x => x.slotName === event.detail.slotName);
-                if(index !== -1) {
-                    vm.proxyProperties.splice(index, 1);
-                }
-                $scope.$evalAsync();
-            }
-        };
 
         vm.$onInit = function() {
-
-            $element[0].addEventListener("UmbBlockGrid_AppendProperty", vm.onAppendProxyProperty);
-            $element[0].addEventListener("UmbBlockGrid_RemoveProperty", vm.onRemoveProxyProperty);
 
             vm.childDepth = parseInt(vm.depth) + 1;
 
@@ -145,29 +110,13 @@
                 vm.areaGridColumns = vm.blockEditorApi.internal.gridColumns.toString();
             }
 
-            vm.layoutColumnsInt = parseInt(vm.layoutColumns, 10);
-
-            vm.relevantColumnSpanOptions = vm.layoutEntry.$block.config.columnSpanOptions ? vm.layoutEntry.$block.config.columnSpanOptions.filter(x => x.columnSpan <= vm.layoutColumnsInt).sort((a,b) => (a.columnSpan > b.columnSpan) ? 1 : ((b.columnSpan > a.columnSpan) ? -1 : 0)) : [];
-            const hasRelevantColumnSpanOptions = vm.relevantColumnSpanOptions.length > 1;
-            const hasRowSpanOptions = vm.layoutEntry.$block.config.rowMinSpan && vm.layoutEntry.$block.config.rowMaxSpan && vm.layoutEntry.$block.config.rowMaxSpan !== vm.layoutEntry.$block.config.rowMinSpan;
-            vm.canScale = (hasRelevantColumnSpanOptions || hasRowSpanOptions);
-            
-            unsubscribe.push(vm.layoutEntry.$block.__scope.$watch(() => vm.layoutEntry.$block.index, visualUpdateCallback));
-            unsubscribe.push($scope.$on("blockGridEditorVisualUpdate", (evt, data) => {if(data.areaKey === vm.areaKey) { visualUpdateCallback()}}));
-
-            updateInlineCreateTimeout = $timeout(updateInlineCreate, 500);
+            vm.layoutColumnsInt = parseInt(vm.layoutColumns, 10)
 
             $scope.$evalAsync();
         }
-        unsubscribe.push($scope.$watch("depth", () => {
+        unsubscribe.push($scope.$watch("depth", (newVal, oldVal) => {
             vm.childDepth = parseInt(vm.depth) + 1;
         }));
-
-        function visualUpdateCallback() {
-            cancelAnimationFrame(updateInlineCreateRaf);
-            updateInlineCreateRaf = requestAnimationFrame(updateInlineCreate);
-        }
-        
         /**
          * We want to only show the validation errors on the specific Block, not the parent blocks.
          * So we need to avoid having a Block as the parent to the Block Form.
@@ -190,16 +139,27 @@
         vm.mouseLeaveArea = function() {
             vm.isHoveringArea = false;
         }
+        vm.toggleForceLeft = function() {
+            vm.layoutEntry.forceLeft = !vm.layoutEntry.forceLeft;
+            if(vm.layoutEntry.forceLeft) {
+                vm.layoutEntry.forceRight = false;
+            }
+            vm.blockEditorApi.internal.setDirty();
+        }
+        vm.toggleForceRight = function() {
+            vm.layoutEntry.forceRight = !vm.layoutEntry.forceRight;
+            if(vm.layoutEntry.forceRight) {
+                vm.layoutEntry.forceLeft = false;
+            }
+            vm.blockEditorApi.internal.setDirty();
+        }
 
         // Block sizing functionality:
         let layoutContainer = null;
         let gridColumns = null;
-        let columnGap = 0;
-        let rowGap = 0;
         let gridRows = null;
-        let lockedGridRows = 0;
         let scaleBoxBackdropEl = null;
-        let raf = null;
+
 
         function getNewSpans(startX, startY, endX, endY) {
 
@@ -211,8 +171,7 @@
             let newColumnSpan = Math.max(blockEndCol-blockStartCol, 1);
 
             // Find nearest allowed Column:
-            const bestColumnSpanOption = closestColumnSpanOption(newColumnSpan , vm.relevantColumnSpanOptions, vm.layoutColumnsInt - blockStartCol)
-            newColumnSpan = bestColumnSpanOption ? bestColumnSpanOption.columnSpan : vm.layoutColumnsInt;
+            newColumnSpan = closestColumnSpanOption(newColumnSpan , vm.layoutEntry.$block.config.columnSpanOptions, gridColumns.length - blockStartCol).columnSpan;
 
             let newRowSpan = Math.round(Math.max(blockEndRow-blockStartRow, vm.layoutEntry.$block.config.rowMinSpan || 1));
             if(vm.layoutEntry.$block.config.rowMaxSpan != null) {
@@ -222,13 +181,9 @@
             return {'columnSpan': newColumnSpan, 'rowSpan': newRowSpan, 'startCol': blockStartCol, 'startRow': blockStartRow};
         }
 
-        function updateGridLayoutData(layoutContainerRect, layoutItemRect, updateRowTemplate) {
+        function updateGridLayoutData(layoutContainerRect, layoutItemRect) {
 
             const computedStyles = window.getComputedStyle(layoutContainer);
-
-
-            columnGap = Number(computedStyles.columnGap.split("px")[0]) || 0;
-            rowGap = Number(computedStyles.rowGap.split("px")[0]) || 0;
 
             gridColumns = computedStyles.gridTemplateColumns.trim().split("px").map(x => Number(x));
             gridRows = computedStyles.gridTemplateRows.trim().split("px").map(x => Number(x));
@@ -236,18 +191,6 @@
             // remove empties:
             gridColumns = gridColumns.filter(n => n > 0);
             gridRows = gridRows.filter(n => n > 0);
-
-            // We use this code to lock the templateRows, while scaling. otherwise scaling Rows is too crazy.
-            if(updateRowTemplate || gridRows.length > lockedGridRows) {
-                lockedGridRows = gridRows.length;
-                layoutContainer.style.gridTemplateRows = computedStyles.gridTemplateRows;
-            }
-
-            // add gaps:
-            const gridColumnsLen = gridColumns.length;
-            gridColumns = gridColumns.map((n, i) => gridColumnsLen === i ? n : n + columnGap);
-            const gridRowsLen = gridRows.length;
-            gridRows = gridRows.map((n, i) => gridRowsLen === i ? n : n + rowGap);
 
             // ensure all columns are there.
             // This will also ensure handling non-css-grid mode,
@@ -283,28 +226,25 @@
             gridRows.push(50);
             gridRows.push(50);
             gridRows.push(50);
-            gridRows.push(50);
-            gridRows.push(50);
         }
 
         vm.scaleHandlerMouseDown = function($event) {
             $event.originalEvent.preventDefault();
-            
-            layoutContainer = $element[0].closest('.umb-block-grid__layout-container');
-            if(!layoutContainer) {
-                console.error($element[0], 'could not find parent layout-container');
-                return;
-            }
-
             vm.isScaleMode = true;
             
             window.addEventListener('mousemove', vm.onMouseMove);
             window.addEventListener('mouseup', vm.onMouseUp);
             window.addEventListener('mouseleave', vm.onMouseUp);
 
+
+            layoutContainer = $element[0].closest('.umb-block-grid__layout-container');
+            if(!layoutContainer) {
+                console.error($element[0], 'could not find parent layout-container');
+            }
+
             const layoutContainerRect = layoutContainer.getBoundingClientRect();
             const layoutItemRect = $element[0].getBoundingClientRect();
-            updateGridLayoutData(layoutContainerRect, layoutItemRect, true);
+            updateGridLayoutData(layoutContainerRect, layoutItemRect);
 
             
             scaleBoxBackdropEl = document.createElement('div');
@@ -316,6 +256,7 @@
 
             const layoutContainerRect = layoutContainer.getBoundingClientRect();
             const layoutItemRect = $element[0].getBoundingClientRect();
+            updateGridLayoutData(layoutContainerRect, layoutItemRect);
 
 
             const startX = layoutItemRect.left - layoutContainerRect.left;
@@ -324,18 +265,6 @@
             const endY = e.clientY - layoutContainerRect.top;
 
             const newSpans = getNewSpans(startX, startY, endX, endY);
-
-            const updateRowTemplate = vm.layoutEntry.columnSpan !== newSpans.columnSpan;
-
-            if(updateRowTemplate) {
-                // If we like to update we need to first remove the lock, make the browser render onces and then update.
-                layoutContainer.style.gridTemplateRows = "";
-            }
-            cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => {
-                // As mentioned above we need to wait until the browser has rendered DOM without the lock of gridTemplateRows.
-                updateGridLayoutData(layoutContainerRect, layoutItemRect, updateRowTemplate);
-            })
 
             // update as we go:
             vm.layoutEntry.columnSpan = newSpans.columnSpan;
@@ -346,13 +275,7 @@
 
         vm.onMouseUp = function(e) {
 
-            cancelAnimationFrame(raf);
-
-            // Remove listeners:
-            window.removeEventListener('mousemove', vm.onMouseMove);
-            window.removeEventListener('mouseup', vm.onMouseUp);
-            window.removeEventListener('mouseleave', vm.onMouseUp);
-
+            vm.isScaleMode = false;
 
             const layoutContainerRect = layoutContainer.getBoundingClientRect();
             const layoutItemRect = $element[0].getBoundingClientRect();
@@ -364,24 +287,22 @@
 
             const newSpans = getNewSpans(startX, startY, endX, endY);
 
+            // Remove listeners:
+            window.removeEventListener('mousemove', vm.onMouseMove);
+            window.removeEventListener('mouseup', vm.onMouseUp);
+            window.removeEventListener('mouseleave', vm.onMouseUp);
 
-            // release the lock of gridTemplateRows:
             layoutContainer.removeChild(scaleBoxBackdropEl);
-            layoutContainer.style.gridTemplateRows = "";
-            vm.isScaleMode = false;
 
             // Clean up variables:
             layoutContainer = null;
             gridColumns = null;
             gridRows = null;
-            lockedGridRows = 0;
             scaleBoxBackdropEl = null;
  
             // Update block size:
             vm.layoutEntry.columnSpan = newSpans.columnSpan;
             vm.layoutEntry.rowSpan = newSpans.rowSpan;
-
-            vm.umbBlockGridEntries.notifyVisualUpdate();
             vm.blockEditorApi.internal.setDirty();
             $scope.$evalAsync();
         }
@@ -410,8 +331,8 @@
             }
 
             if(addColIndex !== 0) {
-                if (vm.relevantColumnSpanOptions.length > 0) {
-                    const sortOptions = vm.relevantColumnSpanOptions;
+                if (vm.layoutEntry.$block.config.columnSpanOptions.length > 0) {
+                    const sortOptions = vm.layoutEntry.$block.config.columnSpanOptions.sort((a,b) => (a.columnSpan > b.columnSpan) ? 1 : ((b.columnSpan > a.columnSpan) ? -1 : 0));
                     const currentColIndex = sortOptions.findIndex(x => x.columnSpan === vm.layoutEntry.columnSpan);
                     const newColIndex = Math.min(Math.max(currentColIndex + addColIndex, 0), sortOptions.length-1);
                     vm.layoutEntry.columnSpan = sortOptions[newColIndex].columnSpan;
@@ -425,30 +346,18 @@
             }
             vm.layoutEntry.rowSpan = newRowSpan;
 
-            vm.umbBlockGridEntries.notifyVisualUpdate();
             vm.blockEditorApi.internal.setDirty();
             $event.originalEvent.stopPropagation();
         }
 
 
-        vm.clickInlineCreateAbove = function($event) {
-            if(vm.hideInlineCreateAbove === false) {
-                vm.blockEditorApi.requestShowCreate(vm.parentBlock, vm.areaKey, vm.index, $event);
-            }
-        }
         vm.clickInlineCreateAfter = function($event) {
             if(vm.hideInlineCreateAfter === false) {
                 vm.blockEditorApi.requestShowCreate(vm.parentBlock, vm.areaKey, vm.index+1, $event, {'fitInRow': true});
             }
         }
-        vm.mouseOverInlineCreate = function() {
-            vm.blockEditorApi.internal.showAreaHighlight(vm.parentBlock, vm.areaKey);
-        }
-        vm.mouseOutInlineCreate = function() {
-            vm.blockEditorApi.internal.hideAreaHighlight(vm.parentBlock, vm.areaKey);
-        }
-        
-        function updateInlineCreate() {
+        vm.mouseOverInlineCreateAfter = function() {
+
             layoutContainer = $element[0].closest('.umb-block-grid__layout-container');
             if(!layoutContainer) {
                 return;
@@ -457,39 +366,17 @@
             const layoutContainerRect = layoutContainer.getBoundingClientRect();
             const layoutItemRect = $element[0].getBoundingClientRect();
 
-            if(layoutContainerRect.width === 0) {
-                $timeout.cancel(updateInlineCreateTimeout);
-                vm.hideInlineCreateAbove = true;
+            if(layoutItemRect.right > layoutContainerRect.right - 5) {
                 vm.hideInlineCreateAfter = true;
-                vm.inlineCreateAboveWidth = "";
-                $scope.$evalAsync();
-                updateInlineCreateTimeout = $timeout(updateInlineCreate, 500);
                 return;
             }
 
-            if(layoutItemRect.right > layoutContainerRect.right - 5) {
-                vm.hideInlineCreateAfter = true;
-            } else {
-                vm.hideInlineCreateAfter = false;
-            }
+            vm.hideInlineCreateAfter = false;
+            vm.blockEditorApi.internal.showAreaHighlight(vm.parentBlock, vm.areaKey);
 
-            if(layoutItemRect.left > layoutContainerRect.left + 5) {
-                vm.hideInlineCreateAbove = true;
-                vm.inlineCreateAboveWidth = "";
-            } else {
-                vm.inlineCreateAboveWidth = getComputedStyle(layoutContainer).width;
-                vm.hideInlineCreateAbove = false;
-            }
-            $scope.$evalAsync();
         }
 
         $scope.$on("$destroy", function () {
-
-            $timeout.cancel(updateInlineCreateTimeout);
-
-            $element[0].removeEventListener("UmbBlockGrid_AppendProperty", vm.onAppendProxyProperty);
-            $element[0].removeEventListener("UmbBlockGrid_RemoveProperty", vm.onRemoveProxyProperty);
-
             for (const subscription of unsubscribe) {
                 subscription();
             }

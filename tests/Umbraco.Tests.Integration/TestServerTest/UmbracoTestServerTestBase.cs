@@ -16,6 +16,8 @@ using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Web;
+using Umbraco.Cms.ManagementApi;
+using Umbraco.Cms.ManagementApi.Controllers.Install;
 using Umbraco.Cms.Persistence.Sqlite;
 using Umbraco.Cms.Persistence.SqlServer;
 using Umbraco.Cms.Tests.Common.Testing;
@@ -249,7 +251,7 @@ namespace Umbraco.Cms.Tests.Integration.TestServerTest
         /// </summary>
         protected virtual void ConfigureTestServices(IServiceCollection services)
         {
-
+            
         }
 
         protected void Configure(IApplicationBuilder app)

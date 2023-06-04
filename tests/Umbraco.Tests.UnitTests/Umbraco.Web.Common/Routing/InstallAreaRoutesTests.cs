@@ -38,7 +38,7 @@ public class InstallAreaRoutesTests
         var endpoints = new TestRouteBuilder();
         routes.CreateRoutes(endpoints);
 
-        Assert.AreEqual(1, endpoints.DataSources.Count);
+        Assert.AreEqual(2, endpoints.DataSources.Count);
         var route = endpoints.DataSources.First();
         Assert.AreEqual(2, route.Endpoints.Count);
 
@@ -64,11 +64,10 @@ public class InstallAreaRoutesTests
             endpoint2.RoutePattern.Defaults[AreaToken],
             typeof(InstallController).GetCustomAttribute<AreaAttribute>(false).RouteValue);
 
-        var dataSource = endpoints.DataSources.Last();
-        Assert.AreEqual(2, dataSource.Endpoints.Count);
+        var fallbackRoute = endpoints.DataSources.Last();
+        Assert.AreEqual(1, fallbackRoute.Endpoints.Count);
 
-        Assert.AreEqual("Route: install/api/{action}/{id?}", dataSource.Endpoints[0].ToString());
-        Assert.AreEqual("Route: install/{action}/{id?}", dataSource.Endpoints[1].ToString());
+        Assert.AreEqual("Fallback {*path:nonfile}", fallbackRoute.Endpoints[0].ToString());
     }
 
     [Test]
@@ -80,13 +79,10 @@ public class InstallAreaRoutesTests
 
         Assert.AreEqual(1, endpoints.DataSources.Count);
         var route = endpoints.DataSources.First();
-        Assert.AreEqual(2, route.Endpoints.Count);
+        Assert.AreEqual(1, route.Endpoints.Count);
 
         var endpoint = (RouteEndpoint)route.Endpoints[0];
-        Assert.AreEqual("install/api/{action}/{id?}", endpoint.RoutePattern.RawText);
-        
-        endpoint = (RouteEndpoint)route.Endpoints[1];
-        Assert.AreEqual("install/{action}/{id?}", endpoint.RoutePattern.RawText);
+        Assert.AreEqual("install/{controller?}/{action?}", endpoint.RoutePattern.RawText);
     }
 
     private InstallAreaRoutes GetInstallAreaRoutes(RuntimeLevel level) =>

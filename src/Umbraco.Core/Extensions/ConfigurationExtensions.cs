@@ -11,6 +11,16 @@ namespace Umbraco.Extensions;
 public static class ConfigurationExtensions
 {
     /// <summary>
+    /// The DataDirectory name.
+    /// </summary>
+    internal const string DataDirectoryName = "DataDirectory";
+
+    /// <summary>
+    /// The DataDirectory placeholder.
+    /// </summary>
+    internal const string DataDirectoryPlaceholder = "|DataDirectory|";
+
+    /// <summary>
     /// The postfix used to identify a connection string provider setting.
     /// </summary>
     internal const string ProviderNamePostfix = "_ProviderName";
@@ -66,10 +76,10 @@ public static class ConfigurationExtensions
         if (!string.IsNullOrEmpty(connectionString))
         {
             // Replace data directory
-            string? dataDirectory = AppDomain.CurrentDomain.GetData(Constants.System.DataDirectoryName)?.ToString();
+            string? dataDirectory = AppDomain.CurrentDomain.GetData(DataDirectoryName)?.ToString();
             if (!string.IsNullOrEmpty(dataDirectory))
             {
-                connectionString = connectionString.Replace(Constants.System.DataDirectoryPlaceholder, dataDirectory);
+                connectionString = connectionString.Replace(DataDirectoryPlaceholder, dataDirectory);
             }
 
             // Get provider name

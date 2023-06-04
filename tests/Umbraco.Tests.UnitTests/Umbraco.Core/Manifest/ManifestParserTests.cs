@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -46,8 +47,7 @@ public class ManifestParserTests
             new JsonNetSerializer(),
             Mock.Of<ILocalizedTextService>(),
             Mock.Of<IShortStringHelper>(),
-            Mock.Of<IDataValueEditorFactory>(),
-            Mock.Of<IManifestFileProviderFactory>());
+            Mock.Of<IDataValueEditorFactory>());
     }
 
     private ManifestParser _parser;
@@ -516,12 +516,12 @@ javascript: ['~/test.js',/*** some note about stuff asd09823-4**09234*/ '~/test2
         view: '~/App_Plugins/MyPackage/PropertyEditors/MyEditor.html',
         supportsReadOnly: true
     }]}";
-
+        
 
         var manifest = _parser.ParseManifest(json);
         Assert.IsTrue(manifest.ParameterEditors.FirstOrDefault().SupportsReadOnly);
     }
-
+    
     [Test]
     public void CanParseManifest_PropertyEditors_SupportsReadOnly()
     {
@@ -557,7 +557,7 @@ javascript: ['~/test.js',/*** some note about stuff asd09823-4**09234*/ '~/test2
                 ]
             }
     }]}";
-
+        
 
         var manifest = _parser.ParseManifest(json);
         Assert.IsTrue(manifest.PropertyEditors.FirstOrDefault().SupportsReadOnly);

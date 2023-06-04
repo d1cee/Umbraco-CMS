@@ -1,4 +1,4 @@
-// Copyright (c) Umbraco.
+﻿// Copyright (c) Umbraco.
 // See LICENSE for more details.
 
 namespace Umbraco.Cms.Core.Actions;
@@ -8,11 +8,15 @@ namespace Umbraco.Cms.Core.Actions;
 /// </summary>
 public class ActionDelete : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter"/>
-    public const char ActionLetter = 'D';
-
-    /// <inheritdoc cref="IAction.ActionAlias"/>
+    /// <summary>
+    /// The unique action alias
+    /// </summary>
     public const string ActionAlias = "delete";
+
+    /// <summary>
+    /// The unique action letter
+    /// </summary>
+    public const char ActionLetter = 'D';
 
     /// <inheritdoc/>
     public char Letter => ActionLetter;

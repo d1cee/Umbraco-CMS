@@ -50,7 +50,7 @@ public class MemberManager : UmbracoUserManager<MemberIdentityUser, MemberPasswo
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> IsMemberAuthorizedAsync(
+    public async Task<bool> IsMemberAuthorizedAsync(
         IEnumerable<string>? allowTypes = null,
         IEnumerable<string>? allowGroups = null,
         IEnumerable<int>? allowMembers = null)
@@ -122,14 +122,14 @@ public class MemberManager : UmbracoUserManager<MemberIdentityUser, MemberPasswo
     }
 
     /// <inheritdoc />
-    public virtual bool IsLoggedIn()
+    public bool IsLoggedIn()
     {
         HttpContext? httpContext = _httpContextAccessor.HttpContext;
         return httpContext?.User.Identity?.IsAuthenticated ?? false;
     }
 
     /// <inheritdoc />
-    public virtual async Task<bool> MemberHasAccessAsync(string path)
+    public async Task<bool> MemberHasAccessAsync(string path)
     {
         if (await IsProtectedAsync(path))
         {
@@ -140,7 +140,7 @@ public class MemberManager : UmbracoUserManager<MemberIdentityUser, MemberPasswo
     }
 
     /// <inheritdoc />
-    public virtual async Task<IReadOnlyDictionary<string, bool>> MemberHasAccessAsync(IEnumerable<string> paths)
+    public async Task<IReadOnlyDictionary<string, bool>> MemberHasAccessAsync(IEnumerable<string> paths)
     {
         IReadOnlyDictionary<string, bool> protectedPaths = await IsProtectedAsync(paths);
 
@@ -163,10 +163,10 @@ public class MemberManager : UmbracoUserManager<MemberIdentityUser, MemberPasswo
     /// <remarks>
     ///     this is a cached call
     /// </remarks>
-    public virtual Task<bool> IsProtectedAsync(string path) => Task.FromResult(_publicAccessService.IsProtected(path).Success);
+    public Task<bool> IsProtectedAsync(string path) => Task.FromResult(_publicAccessService.IsProtected(path).Success);
 
     /// <inheritdoc />
-    public virtual Task<IReadOnlyDictionary<string, bool>> IsProtectedAsync(IEnumerable<string> paths)
+    public Task<IReadOnlyDictionary<string, bool>> IsProtectedAsync(IEnumerable<string> paths)
     {
         var result = new Dictionary<string, bool>();
         foreach (var path in paths)
@@ -179,7 +179,7 @@ public class MemberManager : UmbracoUserManager<MemberIdentityUser, MemberPasswo
     }
 
     /// <inheritdoc />
-    public virtual async Task<MemberIdentityUser?> GetCurrentMemberAsync()
+    public async Task<MemberIdentityUser?> GetCurrentMemberAsync()
     {
         if (_currentMember == null)
         {
@@ -194,7 +194,7 @@ public class MemberManager : UmbracoUserManager<MemberIdentityUser, MemberPasswo
         return _currentMember;
     }
 
-    public virtual IPublishedContent? AsPublishedMember(MemberIdentityUser user) => _store.GetPublishedMember(user);
+    public IPublishedContent? AsPublishedMember(MemberIdentityUser user) => _store.GetPublishedMember(user);
 
     /// <summary>
     ///     This will check if the member has access to this path

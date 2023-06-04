@@ -17,7 +17,6 @@ internal class TagDto
 
     [Column("group")]
     [Length(100)]
-    [Index(IndexTypes.NonClustered, Name = "IX_" + TableName + "_languageId_group", ForColumns = "languageId,group", IncludeColumns = "id,tag")]
     public string Group { get; set; } = null!;
 
     [Column("languageId")]

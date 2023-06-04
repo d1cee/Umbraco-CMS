@@ -17,8 +17,5 @@ public abstract class MovingNotification<T> : CancelableObjectNotification<IEnum
     {
     }
 
-    /// <summary>
-    /// Gets a enumeration of <see cref="MoveEventInfo{TEntity}"/> with the moving entities.
-    /// </summary>
     public IEnumerable<MoveEventInfo<T>> MoveInfoCollection => Target;
 }

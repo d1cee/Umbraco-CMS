@@ -30,5 +30,5 @@ public static class PasswordConfigurationExtensions
         };
 
     public static int GetMinNonAlphaNumericChars(this IPasswordConfiguration passwordConfiguration) =>
-        passwordConfiguration.RequireNonLetterOrDigit ? 1 : 0;
+        passwordConfiguration.RequireNonLetterOrDigit ? 2 : 0;
 }

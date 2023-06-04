@@ -25,7 +25,7 @@
                 ng-click="openCurrentPicker()"
                 id="{{model.alias}}"
                 aria-label="{{model.label}}: {{labels.general_add}}"
-                ng-disabled="!allowAdd">
+                ng-disabled="readonly">
             <localize key="general_add">Add</localize>
             <span class="sr-only">...</span>
         </button>

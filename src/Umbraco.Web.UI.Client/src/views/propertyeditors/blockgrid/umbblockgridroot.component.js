@@ -20,8 +20,7 @@
                 stylesheet: "@",
                 blockEditorApi: "<",
                 propertyEditorForm: "<?",
-                entries: "<",
-                loading: "<"
+                entries: "<"
             }
         }
     );
@@ -35,14 +34,13 @@
             shadowRoot.innerHTML = 
             `
                 <style>
-                    {{vm.stylesheet ? "@import '" + vm.stylesheet + "?umb__rnd=${Umbraco.Sys.ServerVariables.application.cacheBuster}';" : ""}}
-                    @import 'assets/css/blockgridui.css?umb__rnd=${Umbraco.Sys.ServerVariables.application.cacheBuster}';
+                    {{vm.stylesheet ? "@import '"+vm.stylesheet+"';" : ""}}
+                    @import 'assets/css/blockgridui.css';
                     :host {
                         --umb-block-grid--grid-columns: ${vm.gridColumns};
                     }
                 </style>
                 <div 
-                    ng-if="vm.loading !== true"
                     class="umb-block-grid"
                     ng-class="{'show-validation': vm.blockEditorApi.internal.showValidation}"
                     data-grid-columns="${vm.gridColumns}"

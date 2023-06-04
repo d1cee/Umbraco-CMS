@@ -27,7 +27,7 @@
             }
         });
 
-    function BlockGridAreaAllowanceController($scope) {
+    function BlockGridAreaAllowanceController($scope, $element, assetsService, localizationService, editorService) {
 
         var unsubscribe = [];
 

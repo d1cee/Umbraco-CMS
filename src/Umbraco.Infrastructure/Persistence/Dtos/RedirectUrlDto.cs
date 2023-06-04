@@ -9,8 +9,6 @@ namespace Umbraco.Cms.Infrastructure.Persistence.Dtos;
 [ExplicitColumns]
 internal class RedirectUrlDto
 {
-    public const string TableName = Constants.DatabaseSchema.Tables.RedirectUrl;
-
     public RedirectUrlDto() => CreateDateUtc = DateTime.UtcNow;
 
     // notes
@@ -33,7 +31,6 @@ internal class RedirectUrlDto
 
     [Column("createDateUtc")]
     [NullSetting(NullSetting = NullSettings.NotNull)]
-    [Index(IndexTypes.NonClustered, Name = "IX_" + TableName + "_culture_hash", ForColumns = "createDateUtc", IncludeColumns = "culture,url,urlHash,contentKey")]
     public DateTime CreateDateUtc { get; set; }
 
     [Column("url")]

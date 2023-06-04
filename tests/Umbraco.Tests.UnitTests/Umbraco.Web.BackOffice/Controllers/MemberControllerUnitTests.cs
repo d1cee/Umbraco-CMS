@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -74,8 +74,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         SetupMemberTestData(out var fakeMemberData, out _, ContentSaveAction.SaveNew);
@@ -87,8 +86,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
         sut.ModelState.AddModelError("key", "Invalid model state");
 
         Mock.Get(umbracoMembersUserManager)
@@ -120,8 +118,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurity backOfficeSecurity,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         var member = SetupMemberTestData(out var fakeMemberData, out var memberDisplay, ContentSaveAction.SaveNew);
@@ -150,8 +147,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
 
         // act
         var result = await sut.PostSave(fakeMemberData);
@@ -174,8 +170,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurity backOfficeSecurity,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         var member = SetupMemberTestData(out var fakeMemberData, out var memberDisplay, ContentSaveAction.SaveNew);
@@ -204,8 +199,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
 
         // act
         var result = await sut.PostSave(fakeMemberData);
@@ -228,8 +222,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurity backOfficeSecurity,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         var member = SetupMemberTestData(out var fakeMemberData, out var memberDisplay, ContentSaveAction.Save);
@@ -268,8 +261,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
 
         // act
         var result = await sut.PostSave(fakeMemberData);
@@ -292,8 +284,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurity backOfficeSecurity,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         var member = SetupMemberTestData(out var fakeMemberData, out _, ContentSaveAction.Save);
@@ -328,8 +319,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
 
         // act
         var result = await sut.PostSave(fakeMemberData);
@@ -358,8 +348,7 @@ public class MemberControllerUnitTests
             Mock.Get(passwordChanger)
                 .Setup(x => x.ChangePasswordWithIdentityAsync(
                     It.IsAny<ChangingPasswordModel>(),
-                    umbracoMembersUserManager,
-                    null))
+                    umbracoMembersUserManager))
                 .ReturnsAsync(() => attempt);
         }
         else
@@ -368,8 +357,7 @@ public class MemberControllerUnitTests
             Mock.Get(passwordChanger)
                 .Setup(x => x.ChangePasswordWithIdentityAsync(
                     It.IsAny<ChangingPasswordModel>(),
-                    umbracoMembersUserManager,
-                    null))
+                    umbracoMembersUserManager))
                 .ReturnsAsync(() => attempt);
         }
     }
@@ -386,8 +374,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurity backOfficeSecurity,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         var member = SetupMemberTestData(out var fakeMemberData, out _, ContentSaveAction.SaveNew);
@@ -415,8 +402,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
 
         // act
         var result = sut.PostSave(fakeMemberData).Result;
@@ -440,8 +426,7 @@ public class MemberControllerUnitTests
         IBackOfficeSecurity backOfficeSecurity,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
         IOptions<GlobalSettings> globalSettings,
-        IUser user,
-        ITwoFactorLoginService twoFactorLoginService)
+        IUser user)
     {
         // arrange
         var roleName = "anyrole";
@@ -484,8 +469,7 @@ public class MemberControllerUnitTests
             dataTypeService,
             backOfficeSecurityAccessor,
             passwordChanger,
-            globalSettings,
-            twoFactorLoginService);
+            globalSettings);
 
         // act
         var result = await sut.PostSave(fakeMemberData);
@@ -524,8 +508,7 @@ public class MemberControllerUnitTests
         IDataTypeService dataTypeService,
         IBackOfficeSecurityAccessor backOfficeSecurityAccessor,
         IPasswordChanger<MemberIdentityUser> passwordChanger,
-        IOptions<GlobalSettings> globalSettings,
-        ITwoFactorLoginService twoFactorLoginService)
+        IOptions<GlobalSettings> globalSettings)
     {
         var httpContextAccessor = new HttpContextAccessor();
 
@@ -575,8 +558,7 @@ public class MemberControllerUnitTests
                 memberGroupService,
                 mockPasswordConfig.Object,
                 contentTypeBaseServiceProvider.Object,
-                propertyEditorCollection,
-                twoFactorLoginService));
+                propertyEditorCollection));
 
         var map = new MapDefinitionCollection(() => new List<IMapDefinition>
         {
@@ -605,7 +587,7 @@ public class MemberControllerUnitTests
             It.IsAny<bool>(),
             It.IsAny<bool>()) == Mock.Of<ICoreScope>());
 
-        _mapper = new UmbracoMapper(map, scopeProvider, NullLogger<UmbracoMapper>.Instance);
+        _mapper = new UmbracoMapper(map, scopeProvider);
 
         return new MemberController(
             new DefaultCultureDictionary(
@@ -625,8 +607,7 @@ public class MemberControllerUnitTests
             backOfficeSecurityAccessor,
             new ConfigurationEditorJsonSerializer(),
             passwordChanger,
-            scopeProvider,
-            twoFactorLoginService);
+            scopeProvider);
     }
 
     /// <summary>
@@ -715,11 +696,6 @@ public class MemberControllerUnitTests
                         {
                             Alias =
                                 $"{Constants.PropertyEditors.InternalGenericPropertiesPrefix}lockedOut",
-                        },
-                        new()
-                        {
-                            Alias =
-                                $"{Constants.PropertyEditors.InternalGenericPropertiesPrefix}twoFactorEnabled",
                         },
                         new()
                         {

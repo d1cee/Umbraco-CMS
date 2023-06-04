@@ -245,12 +245,9 @@ function contentPickerController($scope, $q, $routeParams, $location, entityReso
         dialogOptions.startNodeId = -1;
     }
     else if ($scope.model.config.startNode.query) {
-        entityResource.getByXPath(
-            $scope.model.config.startNode.query,
-            editorState.current.id,
-            editorState.current.parentId,
-            "Document"
-        ).then(function (ent) {
+        //if we have a query for the startnode, we will use that.
+        var rootId = $routeParams.id;
+        entityResource.getByQuery($scope.model.config.startNode.query, rootId, "Document").then(function (ent) {
             dialogOptions.startNodeId = ($scope.model.config.idType === "udi" ? ent.udi : ent.id).toString();
         });
     }

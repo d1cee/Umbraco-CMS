@@ -51,14 +51,14 @@
             `
                 ${ model.stylesheet ? `
                     <style>
-                        @import "${model.stylesheet}?umb__rnd=${Umbraco.Sys.ServerVariables.application.cacheBuster}"
+                        @import "${model.stylesheet}"
                     </style>`
                     : ''
                 }
                 <div 
                     style="display:contents;" 
                     ng-class="{'show-validation': vm.blockEditorApi.internal.showValidation}"
-                    ng-include="api.internal.sortMode ? api.internal.sortModeView : '${model.view}'"></div>
+                    ng-include="'${model.view}'"></div>
             `;
             $compile(shadowRoot)($scope);
             

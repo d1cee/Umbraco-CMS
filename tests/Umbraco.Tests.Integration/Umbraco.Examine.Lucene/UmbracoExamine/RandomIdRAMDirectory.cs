@@ -1,3 +1,4 @@
+using System;
 using Lucene.Net.Store;
 
 namespace Umbraco.Cms.Tests.Integration.Umbraco.Examine.Lucene.UmbracoExamine;

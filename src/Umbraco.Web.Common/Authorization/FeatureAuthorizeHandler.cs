@@ -3,11 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Features;
-using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Umbraco.Cms.Web.Common.Authorization;
 
@@ -17,20 +13,8 @@ namespace Umbraco.Cms.Web.Common.Authorization;
 public class FeatureAuthorizeHandler : AuthorizationHandler<FeatureAuthorizeRequirement>
 {
     private readonly UmbracoFeatures _umbracoFeatures;
-    private readonly IRuntimeState _runtimeState;
 
-    public FeatureAuthorizeHandler(UmbracoFeatures umbracoFeatures, IRuntimeState runtimeState)
-    {
-        _umbracoFeatures = umbracoFeatures;
-        _runtimeState = runtimeState;
-    }
-
-    [Obsolete("Use ctor that is not obsolete. This will be removed in v13.")]
-    public FeatureAuthorizeHandler(UmbracoFeatures umbracoFeatures)
-        :this(umbracoFeatures, StaticServiceProvider.Instance.GetRequiredService<IRuntimeState>())
-    {
-
-    }
+    public FeatureAuthorizeHandler(UmbracoFeatures umbracoFeatures) => _umbracoFeatures = umbracoFeatures;
 
     protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
@@ -51,11 +35,6 @@ public class FeatureAuthorizeHandler : AuthorizationHandler<FeatureAuthorizeRequ
 
     private bool? IsAllowed(AuthorizationHandlerContext context)
     {
-        if(_runtimeState.Level != RuntimeLevel.Run && _runtimeState.Level != RuntimeLevel.Upgrade)
-        {
-            return false;
-        }
-
         Endpoint? endpoint = null;
 
         switch (context.Resource)

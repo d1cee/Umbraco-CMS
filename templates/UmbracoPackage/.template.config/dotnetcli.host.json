@@ -3,16 +3,11 @@
   "symbolInfo": {
     "Framework": {
       "longName": "Framework",
-      "shortName": "F",
-      "isHidden": true
+      "shortName": "F"
     },
     "UmbracoVersion": {
       "longName": "version",
       "shortName": "v"
-    },
-    "SkipRestore": {
-      "longName": "no-restore",
-      "shortName": ""
     }
   }
 }

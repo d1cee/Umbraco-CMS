@@ -16,17 +16,13 @@ namespace Umbraco.Cms.Core.Actions;
 /// </remarks>
 public class ActionBrowse : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter" />
+    /// <summary>
+    ///     The unique action letter
+    /// </summary>
     public const char ActionLetter = 'F';
 
-    /// <inheritdoc cref="IAction.ActionAlias" />
-    public const string ActionAlias = "browse";
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public char Letter => ActionLetter;
-
-    /// <inheritdoc/>
-    public string Alias => ActionAlias;
 
     /// <inheritdoc />
     public bool ShowInNotifier => false;
@@ -37,6 +33,8 @@ public class ActionBrowse : IAction
     /// <inheritdoc />
     public string Icon => string.Empty;
 
+    /// <inheritdoc />
+    public string Alias => "browse";
 
     /// <inheritdoc />
     public string Category => Constants.Conventions.PermissionCategories.ContentCategory;

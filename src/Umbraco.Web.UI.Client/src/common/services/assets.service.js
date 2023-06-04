@@ -75,7 +75,7 @@ angular.module('umbraco.services')
         
         function getLocales(locales, supportedLocales, path) {
             var localeUrls = [];
-            locales = locales.split(',');
+            var locales = locales.split(',');
             for (var i = 0; i < locales.length; i++) {
                 var locale = locales[i].toString().toLowerCase();
                 if (locale !== 'en-us') {

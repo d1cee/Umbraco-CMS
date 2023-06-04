@@ -4,16 +4,15 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Umbraco.Cms.Core.PropertyEditors;
 
 /// <summary>
 ///     Represents the configuration editor for the grid value editor.
 /// </summary>
-[Obsolete("The grid is obsolete, will be removed in V13")]
 public class GridConfigurationEditor : ConfigurationEditor<GridConfiguration>
 {
     // Scheduled for removal in v12
@@ -32,7 +31,6 @@ public class GridConfigurationEditor : ConfigurationEditor<GridConfiguration>
     }
 }
 
-[Obsolete("The grid is obsolete, will be removed in V13")]
 public class GridValidator : IValueValidator
 {
     public IEnumerable<ValidationResult> Validate(object? rawValue, string? valueType, object? dataTypeConfiguration)
@@ -53,7 +51,6 @@ public class GridValidator : IValueValidator
     }
 }
 
-[Obsolete("The grid is obsolete, will be removed in V13")]
 public class GridEditorModel
 {
     public GridEditorTemplateModel[]? Templates { get; set; }
@@ -61,13 +58,11 @@ public class GridEditorModel
     public int Columns { get; set; }
 }
 
-[Obsolete("The grid is obsolete, will be removed in V13")]
 public class GridEditorTemplateModel
 {
     public GridEditorSectionModel[]? Sections { get; set; }
 }
 
-[Obsolete("The grid is obsolete, will be removed in V13")]
 public class GridEditorSectionModel
 {
     public int Grid { get; set; }

@@ -40,15 +40,10 @@ public class MacroTagParser
         {
             if (match.Groups.Count >= 3)
             {
-                var macroCanBeInlinedInParagraph = match.Value?.Contains("enableInlineMacro=\"1\"") ?? false;
-                var macroElementType = macroCanBeInlinedInParagraph ? "span" : "div";
                 // <div class="umb-macro-holder myMacro mceNonEditable">
                 var alias = match.Groups[2].Value;
-                var sb = new StringBuilder($"<{macroElementType} class=\"umb-macro-holder ");
-                if (macroCanBeInlinedInParagraph)
-                {
-                    sb.Append("inlined-macro ");
-                }
+                var sb = new StringBuilder("<div class=\"umb-macro-holder ");
+
                 // sb.Append(alias.ToSafeAlias());
                 sb.Append("mceNonEditable\"");
                 foreach (KeyValuePair<string, string> htmlAttribute in htmlAttributes)
@@ -69,7 +64,7 @@ public class MacroTagParser
                 sb.Append("Macro alias: ");
                 sb.Append("<strong>");
                 sb.Append(alias);
-                sb.Append($"</strong></ins></{macroElementType}>");
+                sb.Append("</strong></ins></div>");
                 return sb.ToString();
             }
 

@@ -34,9 +34,6 @@ public class MemberSave : ContentBaseSave<IMember>
     [DataMember(Name = "isApproved")]
     public bool IsApproved { get; set; }
 
-    [DataMember(Name = "isTwoFactorEnabled")]
-    public bool IsTwoFactorEnabled { get; set; }
-
     private T? GetPropertyValue<T>(string alias)
     {
         ContentPropertyBasic? prop = Properties.FirstOrDefault(x => x.Alias == alias);

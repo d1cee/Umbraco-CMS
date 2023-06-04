@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ public class UrlsProviderWithDomainsTests : UrlRoutingTestBase
             {
                 new UmbracoDomain("domain1.com")
                 {
-                    Id = 1, LanguageId = LangFrId, RootContentId = 1001, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 1, LanguageId = LangFrId, RootContentId = 1001, LanguageIsoCode = "fr-FR",
                 },
             });
     }
@@ -37,7 +38,7 @@ public class UrlsProviderWithDomainsTests : UrlRoutingTestBase
             {
                 new UmbracoDomain("http://domain1.com/foo")
                 {
-                    Id = 1, LanguageId = LangFrId, RootContentId = 1001, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 1, LanguageId = LangFrId, RootContentId = 1001, LanguageIsoCode = "fr-FR",
                 },
             });
     }
@@ -51,7 +52,7 @@ public class UrlsProviderWithDomainsTests : UrlRoutingTestBase
             {
                 new UmbracoDomain("http://domain1.com/")
                 {
-                    Id = 1, LanguageId = LangFrId, RootContentId = 10011, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 1, LanguageId = LangFrId, RootContentId = 10011, LanguageIsoCode = "fr-FR",
                 },
             });
     }
@@ -65,27 +66,27 @@ public class UrlsProviderWithDomainsTests : UrlRoutingTestBase
             {
                 new UmbracoDomain("http://domain1.com/")
                 {
-                    Id = 1, LanguageId = LangEngId, RootContentId = 1001, LanguageIsoCode = "en-US", SortOrder = 0,
+                    Id = 1, LanguageId = LangEngId, RootContentId = 1001, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain1.com/en")
                 {
-                    Id = 2, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US", SortOrder = 0,
+                    Id = 2, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain1.com/fr")
                 {
-                    Id = 3, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 3, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR",
                 },
                 new UmbracoDomain("http://domain3.com/")
                 {
-                    Id = 4, LanguageId = LangEngId, RootContentId = 1003, LanguageIsoCode = "en-US", SortOrder = 0,
+                    Id = 4, LanguageId = LangEngId, RootContentId = 1003, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain3.com/en")
                 {
-                    Id = 5, LanguageId = LangEngId, RootContentId = 10031, LanguageIsoCode = "en-US", SortOrder = 0,
+                    Id = 5, LanguageId = LangEngId, RootContentId = 10031, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain3.com/fr")
                 {
-                    Id = 6, LanguageId = LangFrId, RootContentId = 10032, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 6, LanguageId = LangFrId, RootContentId = 10032, LanguageIsoCode = "fr-FR",
                 },
             });
     }
@@ -99,35 +100,35 @@ public class UrlsProviderWithDomainsTests : UrlRoutingTestBase
             {
                 new UmbracoDomain("http://domain1.com/en")
                 {
-                    Id = 1, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US", SortOrder = 0,
+                    Id = 1, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain1a.com/en")
                 {
-                    Id = 2, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US", SortOrder = 1,
+                    Id = 2, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain1b.com/en")
                 {
-                    Id = 3, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US", SortOrder = 2,
+                    Id = 3, LanguageId = LangEngId, RootContentId = 10011, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain1.com/fr")
                 {
-                    Id = 4, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 4, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR",
                 },
                 new UmbracoDomain("http://domain1a.com/fr")
                 {
-                    Id = 5, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR", SortOrder = 1,
+                    Id = 5, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR",
                 },
                 new UmbracoDomain("http://domain1b.com/fr")
                 {
-                    Id = 6, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR", SortOrder = 2,
+                    Id = 6, LanguageId = LangFrId, RootContentId = 10012, LanguageIsoCode = "fr-FR",
                 },
                 new UmbracoDomain("http://domain3.com/en")
                 {
-                    Id = 7, LanguageId = LangEngId, RootContentId = 10031, LanguageIsoCode = "en-US", SortOrder = 0,
+                    Id = 7, LanguageId = LangEngId, RootContentId = 10031, LanguageIsoCode = "en-US",
                 },
                 new UmbracoDomain("http://domain3.com/fr")
                 {
-                    Id = 8, LanguageId = LangFrId, RootContentId = 10032, LanguageIsoCode = "fr-FR", SortOrder = 0,
+                    Id = 8, LanguageId = LangFrId, RootContentId = 10032, LanguageIsoCode = "fr-FR",
                 },
             });
     }
@@ -477,7 +478,7 @@ public class UrlsProviderWithDomainsTests : UrlRoutingTestBase
         }
 
         Assert.AreEqual(2, result.Length);
-        Assert.AreEqual(result[0].Text, "http://domain1a.com/en/1001-1-1/");
-        Assert.AreEqual(result[1].Text, "http://domain1b.com/en/1001-1-1/");
+        Assert.AreEqual(result[0].Text, "http://domain1b.com/en/1001-1-1/");
+        Assert.AreEqual(result[1].Text, "http://domain1a.com/en/1001-1-1/");
     }
 }

@@ -77,7 +77,7 @@ function valFormManager(serverValidationManager, $rootScope, $timeout, $location
 
         // not found, then fallback to searching the scope chain, this may be needed when DOM inheritance isn't maintained but scope
         // inheritance is (i.e.infinite editing)
-        found = angularHelper.traverseScopeChain(scope, s => s && s.valFormManager && s.valFormManager.constructor.name === "ValFormManagerController");
+        var found = angularHelper.traverseScopeChain(scope, s => s && s.valFormManager && s.valFormManager.constructor.name === "ValFormManagerController");
         return found ? found.valFormManager : null;
     }
 

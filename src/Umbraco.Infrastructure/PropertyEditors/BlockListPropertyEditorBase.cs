@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
@@ -7,7 +6,6 @@ using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
-using Umbraco.Cms.Web.Common.DependencyInjection;
 
 namespace Umbraco.Cms.Core.PropertyEditors;
 
@@ -16,25 +14,9 @@ namespace Umbraco.Cms.Core.PropertyEditors;
 /// </summary>
 public abstract class BlockListPropertyEditorBase : DataEditor
 {
-
-    private readonly IBlockValuePropertyIndexValueFactory _blockValuePropertyIndexValueFactory;
-
-    [Obsolete("Use non-obsoleted ctor. This will be removed in Umbraco 13.")]
     protected BlockListPropertyEditorBase(IDataValueEditorFactory dataValueEditorFactory)
-        : this(dataValueEditorFactory, StaticServiceProvider.Instance.GetRequiredService<IBlockValuePropertyIndexValueFactory>())
-    {
-
-    }
-
-    protected BlockListPropertyEditorBase(IDataValueEditorFactory dataValueEditorFactory, IBlockValuePropertyIndexValueFactory blockValuePropertyIndexValueFactory)
-        : base(dataValueEditorFactory)
-    {
-        _blockValuePropertyIndexValueFactory = blockValuePropertyIndexValueFactory;
+        : base(dataValueEditorFactory) =>
         SupportsReadOnly = true;
-    }
-
-    public override IPropertyIndexValueFactory PropertyIndexValueFactory => _blockValuePropertyIndexValueFactory;
-
 
     #region Value Editor
 

@@ -5,20 +5,17 @@ module.exports = {
         build: {
             sourcemaps: false,
             embedtemplates: true,
-            minify: true,
-            lint: true
+            minify: true
         },
         dev: {
             sourcemaps: true,
             embedtemplates: true,
-            minify: false,
-            lint: false
+            minify: false
         },
         test: {
             sourcemaps: false,
             embedtemplates: true,
-            minify: true,
-            lint: true
+            minify: true
         }
     },
     sources: {

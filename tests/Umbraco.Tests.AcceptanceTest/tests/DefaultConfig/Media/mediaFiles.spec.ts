@@ -1,20 +1,19 @@
-import {expect} from "@playwright/test";
+﻿import {expect} from "@playwright/test";
 import {ConstantHelper, test} from '@umbraco/playwright-testhelpers';
 
 test.describe('media File Types', () => {
 
-    test.beforeEach(async ({page, umbracoApi, umbracoUi}, testInfo) => {
-        await umbracoApi.report.report(testInfo);
+    test.beforeEach(async ({page, umbracoApi, umbracoUi}) => {
         await umbracoApi.login();
         await umbracoUi.goToSection(ConstantHelper.sections.media);
         await umbracoApi.media.deleteAllMedia();
     });
-
+    
     test.describe('create each File Types', () => {
         test('create Article', async ({page, umbracoApi, umbracoUi}) => {
             const articleName = "Article";
             const fileName = "Article.pdf";
-            const path = 'mediaLibrary/' + fileName;
+            const path = fileName;
             const mimeType = "application/pdf";
             await umbracoApi.media.ensureNameNotExists(articleName);
 
@@ -32,7 +31,7 @@ test.describe('media File Types', () => {
         test('create Audio', async ({page, umbracoApi, umbracoUi}) => {
             const audioName = "Audio";
             const fileName = "Audio.mp3";
-            const path = 'mediaLibrary/' + fileName;
+            const path = fileName;
             const mimeType = "audio/mp3"
             await umbracoApi.media.ensureNameNotExists(audioName);
 
@@ -50,10 +49,10 @@ test.describe('media File Types', () => {
         test('create File', async ({page, umbracoApi, umbracoUi}) => {
             const fileItemName = "File";
             const fileName = "File.txt";
-            const path = 'mediaLibrary/' + fileName;
+            const path = fileName;
             const mimeType = "*/*";
             await umbracoApi.media.ensureNameNotExists(fileItemName);
-
+            
             // Action
             await umbracoApi.media.createFileWithFile(fileItemName, fileName, path, mimeType);
             await umbracoUi.refreshMediaTree();
@@ -84,7 +83,7 @@ test.describe('media File Types', () => {
             const imageName = "Umbraco";
             const umbracoFileValue = {"src": "Umbraco.png"};
             const fileName = "Umbraco.png"
-            const path = 'mediaLibrary/' + fileName;
+            const path = fileName;
             const mimeType = "image/png";
             await umbracoApi.media.ensureNameNotExists(imageName);
 
@@ -102,7 +101,7 @@ test.describe('media File Types', () => {
         test('create VectorGraphics(SVG)', async ({page, umbracoApi, umbracoUi}) => {
             const vectorGraphicsName = 'VectorGraphics';
             const fileName = "VectorGraphics.svg";
-            const path = 'mediaLibrary/' + fileName;
+            const path = fileName;
             const mimeType = "image/svg+xml";
             await umbracoApi.media.ensureNameNotExists(vectorGraphicsName);
 
@@ -120,7 +119,7 @@ test.describe('media File Types', () => {
         test('create Video', async ({page, umbracoApi, umbracoUi}) => {
             const videoName = "Video";
             const fileName = "Video.mp4";
-            const path = 'mediaLibrary/' + fileName;
+            const path = fileName;
             const mimeType = "video/mp4";
             await umbracoApi.media.ensureNameNotExists(videoName);
 
@@ -147,7 +146,7 @@ test.describe('media File Types', () => {
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
-          await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -173,7 +172,7 @@ test.describe('media File Types', () => {
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
-          await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -200,7 +199,7 @@ test.describe('media File Types', () => {
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
-            await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -222,12 +221,12 @@ test.describe('media File Types', () => {
             const childName = 'ChildFolder';
             await umbracoApi.media.ensureNameNotExists(parentName);
             await umbracoApi.media.ensureNameNotExists(childName);
-
+            
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
 
-          await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -254,7 +253,7 @@ test.describe('media File Types', () => {
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
-          await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -281,7 +280,7 @@ test.describe('media File Types', () => {
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
-          await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -308,7 +307,7 @@ test.describe('media File Types', () => {
             // Action
             await umbracoApi.media.createDefaultFolder(parentName);
             await umbracoUi.refreshMediaTree();
-          await umbracoUi.clickElement(umbracoUi.getTreeItem(ConstantHelper.sections.media, [parentName]), {
+            await umbracoUi.clickElement(umbracoUi.getTreeItem('media', [parentName]), {
                 button: "right",
                 force: true
             });
@@ -325,7 +324,7 @@ test.describe('media File Types', () => {
             await umbracoApi.media.ensureNameNotExists(childName);
         });
     });
-
+    
     test('Delete one of each Files in media', async ({page, umbracoApi, umbracoUi}) => {
         const articleName = 'ArticleToDelete';
         const audioName = 'AudioToDelete';
@@ -341,7 +340,7 @@ test.describe('media File Types', () => {
         await page.reload();
         // Needs to close tours when page has reloaded
         await page.click('.umb-tour-step__close');
-
+        
         // Takes all the child elements in folder-grid.
         await page.locator(".umb-folder-grid").locator("xpath=/*", {hasText: folderName}).click({
             position: {
@@ -367,7 +366,7 @@ test.describe('media File Types', () => {
         const fileItemNameOld = "File";
         const fileItemNameNew = "UpdatedFile";
         const fileName = "File.txt";
-        const path = 'mediaLibrary/' + fileName;
+        const path = fileName;
         const mimeType = "*/*";
         await umbracoApi.media.ensureNameNotExists(fileItemNameOld);
 
@@ -389,7 +388,7 @@ test.describe('media File Types', () => {
     test('Update existing File with new File', async ({page, umbracoApi, umbracoUi}) => {
         const fileItemName = "File";
         const fileName = "File.txt";
-        const path = 'mediaLibrary/' + fileName;
+        const path = fileName;
         const fileNameNew = "UpdatedFile.txt"
         const pathNew = "./fixtures/mediaLibrary/" + fileNameNew;
         const mimeType = "*/*";

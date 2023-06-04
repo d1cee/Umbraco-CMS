@@ -83,19 +83,18 @@ public static class StringExtensions
             return fileName;
         }
 
-        var spanFileName = fileName.AsSpan();
-        var lastIndex = spanFileName.LastIndexOf('.');
+        var lastIndex = fileName.LastIndexOf('.');
         if (lastIndex > 0)
         {
-            var ext = spanFileName[lastIndex..];
+            var ext = fileName.Substring(lastIndex);
 
             // file extensions cannot contain whitespace
-            if (ext.Contains(' '))
+            if (ext.Contains(" "))
             {
                 return fileName;
             }
 
-            return new string(spanFileName[..lastIndex]);
+            return string.Format("{0}", fileName.Substring(0, fileName.IndexOf(ext, StringComparison.Ordinal)));
         }
 
         return fileName;
@@ -1040,15 +1039,14 @@ public static class StringExtensions
             throw new ArgumentNullException(nameof(text));
         }
 
-        ReadOnlySpan<char> spanText = text.AsSpan();
-        var pos = spanText.IndexOf(search, StringComparison.InvariantCulture);
+        var pos = text.IndexOf(search, StringComparison.InvariantCulture);
 
         if (pos < 0)
         {
             return text;
         }
 
-        return string.Concat(spanText[..pos], replace.AsSpan(), spanText[(pos + search.Length)..]);
+        return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
     }
 
     /// <summary>
@@ -1241,7 +1239,7 @@ public static class StringExtensions
     /// <summary>
     ///     Turns an null-or-whitespace string into a null string.
     /// </summary>
-    public static string? NullOrWhiteSpaceAsNull(this string? text)
+    public static string? NullOrWhiteSpaceAsNull(this string text)
         => string.IsNullOrWhiteSpace(text) ? null : text;
 
     /// <summary>

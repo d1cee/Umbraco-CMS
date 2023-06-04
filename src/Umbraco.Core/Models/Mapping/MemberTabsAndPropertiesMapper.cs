@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.Dictionary;
@@ -7,7 +6,6 @@ using Umbraco.Cms.Core.Models.ContentEditing;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Core.Models.Mapping;
@@ -28,36 +26,8 @@ public class MemberTabsAndPropertiesMapper : TabsAndPropertiesMapper<IMember>
     private readonly IMemberService _memberService;
     private readonly IMemberGroupService _memberGroupService;
     private readonly MemberPasswordConfigurationSettings _memberPasswordConfiguration;
-    private readonly ITwoFactorLoginService _twoFactorLoginService;
+    private readonly PropertyEditorCollection _propertyEditorCollection;
 
-    // PropertyEditorCollection is still injected as when removing it, the number of
-    // parameters matches with the obsolete ctor and the two ctors become ambiguous
-    // [ActivatorUtilitiesConstructor] won't solve the problem in this case.
-    // PropertyEditorCollection can be removed when the obsolete ctor is removed for
-    // Umbraco 13
-    public MemberTabsAndPropertiesMapper(
-        ICultureDictionary cultureDictionary,
-        IBackOfficeSecurityAccessor backofficeSecurityAccessor,
-        ILocalizedTextService localizedTextService,
-        IMemberTypeService memberTypeService,
-        IMemberService memberService,
-        IMemberGroupService memberGroupService,
-        IOptions<MemberPasswordConfigurationSettings> memberPasswordConfiguration,
-        IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
-        PropertyEditorCollection propertyEditorCollection,
-        ITwoFactorLoginService twoFactorLoginService)
-        : base(cultureDictionary, localizedTextService, contentTypeBaseServiceProvider)
-    {
-        _backofficeSecurityAccessor = backofficeSecurityAccessor ?? throw new ArgumentNullException(nameof(backofficeSecurityAccessor));
-        _localizedTextService = localizedTextService ?? throw new ArgumentNullException(nameof(localizedTextService));
-        _memberTypeService = memberTypeService ?? throw new ArgumentNullException(nameof(memberTypeService));
-        _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
-        _memberGroupService = memberGroupService ?? throw new ArgumentNullException(nameof(memberGroupService));
-        _memberPasswordConfiguration = memberPasswordConfiguration.Value;
-        _twoFactorLoginService = twoFactorLoginService ?? throw new ArgumentNullException(nameof(twoFactorLoginService));
-    }
-
-    [Obsolete("Use constructor that also takes an ITwoFactorLoginService. Scheduled for removal in V13")]
     public MemberTabsAndPropertiesMapper(
         ICultureDictionary cultureDictionary,
         IBackOfficeSecurityAccessor backofficeSecurityAccessor,
@@ -68,18 +38,15 @@ public class MemberTabsAndPropertiesMapper : TabsAndPropertiesMapper<IMember>
         IOptions<MemberPasswordConfigurationSettings> memberPasswordConfiguration,
         IContentTypeBaseServiceProvider contentTypeBaseServiceProvider,
         PropertyEditorCollection propertyEditorCollection)
-        : this(
-              cultureDictionary,
-              backofficeSecurityAccessor,
-              localizedTextService,
-              memberTypeService,
-              memberService,
-              memberGroupService,
-              memberPasswordConfiguration,
-              contentTypeBaseServiceProvider,
-              propertyEditorCollection,
-              StaticServiceProvider.Instance.GetRequiredService<ITwoFactorLoginService>())
+        : base(cultureDictionary, localizedTextService, contentTypeBaseServiceProvider)
     {
+        _backofficeSecurityAccessor = backofficeSecurityAccessor ?? throw new ArgumentNullException(nameof(backofficeSecurityAccessor));
+        _localizedTextService = localizedTextService ?? throw new ArgumentNullException(nameof(localizedTextService));
+        _memberTypeService = memberTypeService ?? throw new ArgumentNullException(nameof(memberTypeService));
+        _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
+        _memberGroupService = memberGroupService ?? throw new ArgumentNullException(nameof(memberGroupService));
+        _memberPasswordConfiguration = memberPasswordConfiguration.Value;
+        _propertyEditorCollection = propertyEditorCollection;
     }
 
     /// <inheritdoc />
@@ -214,8 +181,6 @@ public class MemberTabsAndPropertiesMapper : TabsAndPropertiesMapper<IMember>
 
     public IEnumerable<ContentPropertyDisplay> MapMembershipProperties(IMember member, MapperContext? context)
     {
-        var isTwoFactorEnabled = _twoFactorLoginService.IsTwoFactorEnabledAsync(member.Key).Result;
-
         var properties = new List<ContentPropertyDisplay>
         {
             GetLoginProperty(member, _localizedTextService),
@@ -279,17 +244,6 @@ public class MemberTabsAndPropertiesMapper : TabsAndPropertiesMapper<IMember>
                 View = "boolean",
                 IsSensitive = true,
                 Readonly = !member.IsLockedOut, // IMember.IsLockedOut can't be set to true, so make it readonly when that's the case (you can only unlock)
-            },
-
-            // Toggle for disabling Two-Factor Authentication for a Member
-            new()
-            {
-                Alias = $"{Constants.PropertyEditors.InternalGenericPropertiesPrefix}twoFactorEnabled",
-                Label = _localizedTextService.Localize("member", "2fa"),
-                Value = isTwoFactorEnabled,
-                View = "boolean",
-                IsSensitive = true,
-                Readonly = !isTwoFactorEnabled, // The value can't be set to true, so make it readonly when that's the case (you can only disable)
             },
 
             new()

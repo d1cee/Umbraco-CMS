@@ -1,23 +1,27 @@
-// Copyright (c) Umbraco.
+﻿// Copyright (c) Umbraco.
 // See LICENSE for more details.
 
 namespace Umbraco.Cms.Core.Actions;
 
 /// <summary>
-///     This action is invoked upon creation of a document.
+///     This action is invoked upon creation of a document
 /// </summary>
 public class ActionNew : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter"/>
-    public const char ActionLetter = 'C';
-
-    /// <inheritdoc cref="IAction.ActionAlias"/>
+    /// <summary>
+    ///     The unique action alias
+    /// </summary>
     public const string ActionAlias = "create";
 
-    /// <inheritdoc/>
+    /// <summary>
+    ///     The unique action letter
+    /// </summary>
+    public const char ActionLetter = 'C';
+
+    /// <inheritdoc />
     public char Letter => ActionLetter;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public string Alias => ActionAlias;
 
     /// <inheritdoc />

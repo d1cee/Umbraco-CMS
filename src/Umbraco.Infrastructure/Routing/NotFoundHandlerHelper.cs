@@ -79,7 +79,6 @@ internal class NotFoundHandlerHelper
                 var xpathResult = UmbracoXPathPathSyntaxParser.ParseXPathQuery(
                     errorPage.ContentXPath!,
                     domainContentId,
-                    null,
                     nodeid =>
                     {
                         IEntitySlim? ent = entityService.Get(nodeid);

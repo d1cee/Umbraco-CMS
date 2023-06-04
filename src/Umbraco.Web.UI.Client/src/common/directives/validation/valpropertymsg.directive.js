@@ -160,7 +160,7 @@ function valPropertyMsg(serverValidationManager, localizationService, angularHel
                             collectAllNgModelControllersRecursively(ctrl.$getControls(), ngModels);
                         }
                     }
-                    else if (Object.prototype.hasOwnProperty.call(ctrl, '$modelValue') && Utilities.isObject(ctrl.$validators)) {
+                    else if (ctrl.hasOwnProperty('$modelValue') && Utilities.isObject(ctrl.$validators)) {
                         ngModels.push(ctrl);
                     }
                 });
@@ -267,12 +267,12 @@ function valPropertyMsg(serverValidationManager, localizationService, angularHel
                     // subscribing to this single watch.
                     // TODO: Really? Since valFormManager is watching a countof all errors which is more overhead than watching formCtrl.$invalid
                     // and there's a TODO there that it should just watch formCtrl.$invalid
-                    valFormManager.onValidationStatusChanged(function () {
+                    valFormManager.onValidationStatusChanged(function (evt, args) {
                         checkValidationStatus();
                     });
 
                     //listen for the forms saving event
-                    unsubscribe.push(scope.$on("formSubmitting", function () {
+                    unsubscribe.push(scope.$on("formSubmitting", function (ev, args) {
                         showValidation = true;
                         if (hasError && scope.errorMsg === "") {
                             scope.errorMsg = getErrorMsg();
@@ -284,7 +284,7 @@ function valPropertyMsg(serverValidationManager, localizationService, angularHel
                     }));
 
                     //listen for the forms saved event
-                    unsubscribe.push(scope.$on("formSubmitted", function () {
+                    unsubscribe.push(scope.$on("formSubmitted", function (ev, args) {
                         showValidation = false;
                         resetError();
                     }));
@@ -299,7 +299,7 @@ function valPropertyMsg(serverValidationManager, localizationService, angularHel
                         // indicate that a content property is invalid at the property level since developers may not actually implement
                         // the correct field validation in their property editors.
 
-                        const serverValidationManagerCallback = function(isValid, propertyErrors) {
+                        function serverValidationManagerCallback(isValid, propertyErrors, allErrors) {
                             var hadError = hasError;
                             hasError = !isValid;
                             if (hasError) {

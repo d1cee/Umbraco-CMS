@@ -1,5 +1,5 @@
 describe('RTE controller tests', function () {
-    var scope, controllerFactory, element;
+    var scope, controllerFactory;
 
     //mock tinymce globals
     if ((typeof tinymce) === "undefined") {
@@ -23,7 +23,6 @@ describe('RTE controller tests', function () {
         controllerFactory = $controller;
         scope = $rootScope.$new();
         scope.model = {value: "<p>hello</p>"};
-        element = $("<div></div>");
     }));
 
 
@@ -32,8 +31,7 @@ describe('RTE controller tests', function () {
         it('should define the default properties on construction', function () {     
             controllerFactory('Umbraco.PropertyEditors.RTEController', {
                 $scope: scope,
-                $routeParams: routeParams,
-                $element: element
+                $routeParams: routeParams
             });
         });
         

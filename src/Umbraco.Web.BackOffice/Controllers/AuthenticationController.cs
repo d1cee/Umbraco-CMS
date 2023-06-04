@@ -423,7 +423,7 @@ public class AuthenticationController : UmbracoApiControllerBase
 
                 var mailMessage = new EmailMessage(from, user.Email, subject, message, true);
 
-                await _emailSender.SendAsync(mailMessage, Constants.Web.EmailTypes.PasswordReset, true);
+                await _emailSender.SendAsync(mailMessage, Constants.Web.EmailTypes.PasswordReset);
 
                 _userManager.NotifyForgotPasswordRequested(User, user.Id.ToString());
             }
@@ -633,7 +633,7 @@ public class AuthenticationController : UmbracoApiControllerBase
         await _signInManager.SignOutAsync();
 
         _logger.LogInformation("User {UserName} from IP address {RemoteIpAddress} has logged out",
-            result.Principal.Identity == null ? "UNKNOWN" : result.Principal.Identity.Name, HttpContext.Connection.RemoteIpAddress);
+            User.Identity == null ? "UNKNOWN" : User.Identity.Name, HttpContext.Connection.RemoteIpAddress);
 
         var userId = result.Principal.Identity?.GetUserId();
         SignOutSuccessResult args = _userManager.NotifyLogoutSuccess(User, userId);

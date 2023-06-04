@@ -2,9 +2,8 @@
     * @ngdoc service
     * @name umbraco.resources.ourPackageRepositoryResource
     * @description handles data for package installations
-    * @deprecated This resource is deprecated and will be removed in future versions. Umbraco no longer supports the Our Umbraco repository.
     **/
-function ourPackageRepositoryResource($http, umbRequestHelper) {
+function ourPackageRepositoryResource($q, $http, umbDataFormatter, umbRequestHelper) {
 
     var baseurl = Umbraco.Sys.ServerVariables.umbracoUrls.packagesRestApiBaseUrl;
 

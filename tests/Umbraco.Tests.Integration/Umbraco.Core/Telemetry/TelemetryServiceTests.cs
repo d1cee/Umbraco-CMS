@@ -1,3 +1,4 @@
+﻿using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -48,8 +49,7 @@ public class TelemetryServiceTests : UmbracoIntegrationTest
             Constants.Telemetry.AspEnvironment,
             Constants.Telemetry.IsDebug,
             Constants.Telemetry.DatabaseProvider,
-            Constants.Telemetry.CurrentServerRole,
-            Constants.Telemetry.RuntimeMode,
+            Constants.Telemetry.CurrentServerRole
         };
 
         MetricsConsentService.SetConsentLevel(TelemetryLevel.Detailed);

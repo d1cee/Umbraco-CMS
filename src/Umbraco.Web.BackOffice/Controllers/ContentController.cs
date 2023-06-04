@@ -5,12 +5,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Actions;
-using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.ContentApps;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Dictionary;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Mapping;
@@ -33,6 +30,7 @@ using Umbraco.Cms.Web.BackOffice.Filters;
 using Umbraco.Cms.Web.BackOffice.ModelBinders;
 using Umbraco.Cms.Web.Common.Attributes;
 using Umbraco.Cms.Web.Common.Authorization;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.BackOffice.Controllers;
@@ -67,7 +65,6 @@ public class ContentController : ContentControllerBase
     private readonly ISqlContext _sqlContext;
     private readonly IUmbracoMapper _umbracoMapper;
     private readonly IUserService _userService;
-    private readonly ContentSettings _contentSettings;
 
     [ActivatorUtilitiesConstructor]
     public ContentController(
@@ -94,8 +91,7 @@ public class ContentController : ContentControllerBase
         ICoreScopeProvider scopeProvider,
         IAuthorizationService authorizationService,
         IContentVersionService contentVersionService,
-        ICultureImpactFactory cultureImpactFactory,
-        IOptions<ContentSettings> contentSettings)
+        ICultureImpactFactory cultureImpactFactory)
         : base(cultureDictionary, loggerFactory, shortStringHelper, eventMessages, localizedTextService, serializer)
     {
         _propertyEditors = propertyEditors;
@@ -119,63 +115,7 @@ public class ContentController : ContentControllerBase
         _logger = loggerFactory.CreateLogger<ContentController>();
         _scopeProvider = scopeProvider;
         _allLangs = new Lazy<IDictionary<string, ILanguage>>(() =>
-        _localizationService.GetAllLanguages().ToDictionary(x => x.IsoCode, x => x, StringComparer.InvariantCultureIgnoreCase));
-        _contentSettings = contentSettings.Value;
-    }
-
-    [Obsolete("Use constructor that accepts ContentSettings as a parameter, scheduled for removal in V13")]
-    public ContentController(
-        ICultureDictionary cultureDictionary,
-        ILoggerFactory loggerFactory,
-        IShortStringHelper shortStringHelper,
-        IEventMessagesFactory eventMessages,
-        ILocalizedTextService localizedTextService,
-        PropertyEditorCollection propertyEditors,
-        IContentService contentService,
-        IUserService userService,
-        IBackOfficeSecurityAccessor backofficeSecurityAccessor,
-        IContentTypeService contentTypeService,
-        IUmbracoMapper umbracoMapper,
-        IPublishedUrlProvider publishedUrlProvider,
-        IDomainService domainService,
-        IDataTypeService dataTypeService,
-        ILocalizationService localizationService,
-        IFileService fileService,
-        INotificationService notificationService,
-        ActionCollection actionCollection,
-        ISqlContext sqlContext,
-        IJsonSerializer serializer,
-        ICoreScopeProvider scopeProvider,
-        IAuthorizationService authorizationService,
-        IContentVersionService contentVersionService,
-        ICultureImpactFactory cultureImpactFactory)
-        : this(
-            cultureDictionary,
-            loggerFactory,
-            shortStringHelper,
-            eventMessages,
-            localizedTextService,
-            propertyEditors,
-            contentService,
-            userService,
-            backofficeSecurityAccessor,
-            contentTypeService,
-            umbracoMapper,
-            publishedUrlProvider,
-            domainService,
-            dataTypeService,
-            localizationService,
-            fileService,
-            notificationService,
-            actionCollection,
-            sqlContext,
-            serializer,
-            scopeProvider,
-            authorizationService,
-            contentVersionService,
-            cultureImpactFactory,
-            StaticServiceProvider.Instance.GetRequiredService<IOptions<ContentSettings>>())
-    {
+            _localizationService.GetAllLanguages().ToDictionary(x => x.IsoCode, x => x, StringComparer.InvariantCultureIgnoreCase));
     }
 
     [Obsolete("Use constructor that accepts ICultureImpactService as a parameter, scheduled for removal in V12")]
@@ -228,8 +168,8 @@ public class ContentController : ContentControllerBase
             authorizationService,
             contentVersionService,
             StaticServiceProvider.Instance.GetRequiredService<ICultureImpactFactory>())
-    {
-    }
+      {
+      }
 
     public object? Domains { get; private set; }
 
@@ -1770,11 +1710,6 @@ public class ContentController : ContentControllerBase
     /// <param name="globalNotifications"></param>
     internal void AddDomainWarnings(IContent? persistedContent, string[]? culturesPublished, SimpleNotificationModel globalNotifications)
     {
-        if (_contentSettings.ShowDomainWarnings is false)
-        {
-            return;
-        }
-
         // Don't try to verify if no cultures were published
         if (culturesPublished is null)
         {
@@ -2015,61 +1950,10 @@ public class ContentController : ContentControllerBase
         }
 
         PublishResult publishResult = _contentService.SaveAndPublish(foundContent, userId: _backofficeSecurityAccessor.BackOfficeSecurity?.GetUserId().Result ?? 0);
-
         if (publishResult.Success == false)
         {
             var notificationModel = new SimpleNotificationModel();
             AddMessageForPublishStatus(new[] { publishResult }, notificationModel);
-            return ValidationProblem(notificationModel);
-        }
-
-        return Ok();
-    }
-
-    /// <summary>
-    ///     Publishes a document with a given ID and cultures.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <remarks>
-    ///     The EnsureUserPermissionForContent attribute will deny access to this method if the current user
-    ///     does not have Publish access to this node.
-    /// </remarks>
-    [Authorize(Policy = AuthorizationPolicies.ContentPermissionPublishById)]
-    public IActionResult PostPublishByIdAndCulture(PublishContent model)
-    {
-        var languageCount = _allLangs.Value.Count();
-
-        // If there is no culture specified or the cultures specified are equal to the total amount of languages, publish the content in all cultures.
-        if (model.Cultures == null || !model.Cultures.Any() || model.Cultures.Length == languageCount)
-        {
-            return PostPublishById(model.Id);
-        }
-
-        IContent? foundContent = GetObjectFromRequest(() => _contentService.GetById(model.Id));
-
-        if (foundContent == null)
-        {
-            return HandleContentNotFound(model.Id);
-        }
-
-        var results = new Dictionary<string, PublishResult>();
-
-        foreach (var culture in model.Cultures)
-        {
-            PublishResult publishResult = _contentService.SaveAndPublish(foundContent, culture, _backofficeSecurityAccessor.BackOfficeSecurity?.GetUserId().Result ?? 0);
-            results[culture] = publishResult;
-        }
-
-        if (results.Any(x => x.Value.Success == false))
-        {
-            var notificationModel = new SimpleNotificationModel();
-
-            foreach (var culture in results.Where(x => x.Value.Success == false))
-            {
-                AddMessageForPublishStatus(new[] { culture.Value }, notificationModel);
-            }
-
             return ValidationProblem(notificationModel);
         }
 
@@ -2362,14 +2246,16 @@ public class ContentController : ContentControllerBase
 
     public ContentDomainsAndCulture GetCultureAndDomains(int id)
     {
-        IDomain[] assignedDomains = _domainService.GetAssignedDomains(id, true).ToArray();
-        IDomain? wildcard = assignedDomains.FirstOrDefault(d => d.IsWildcard);
-        IEnumerable<DomainDisplay> domains = assignedDomains.Where(d => !d.IsWildcard).Select(d => new DomainDisplay(d.DomainName, d.LanguageId.GetValueOrDefault(0)));
-
+        IDomain[]? nodeDomains = _domainService.GetAssignedDomains(id, true)?.ToArray();
+        IDomain? wildcard = nodeDomains?.FirstOrDefault(d => d.IsWildcard);
+        IEnumerable<DomainDisplay>? domains = nodeDomains?.Where(d => !d.IsWildcard)
+            .Select(d => new DomainDisplay(d.DomainName, d.LanguageId.GetValueOrDefault(0)));
         return new ContentDomainsAndCulture
         {
-            Language = wildcard == null || !wildcard.LanguageId.HasValue ? "undefined" : wildcard.LanguageId.ToString(),
             Domains = domains,
+            Language = wildcard == null || !wildcard.LanguageId.HasValue
+                ? "undefined"
+                : wildcard.LanguageId.ToString()
         };
     }
 
@@ -2378,11 +2264,11 @@ public class ContentController : ContentControllerBase
     {
         if (model.Domains is not null)
         {
-            foreach (DomainDisplay domainDisplay in model.Domains)
+            foreach (DomainDisplay domain in model.Domains)
             {
                 try
                 {
-                    DomainUtilities.ParseUriFromDomainName(domainDisplay.Name, new Uri(Request.GetEncodedUrl()));
+                    Uri uri = DomainUtilities.ParseUriFromDomainName(domain.Name, new Uri(Request.GetEncodedUrl()));
                 }
                 catch (UriFormatException)
                 {
@@ -2391,16 +2277,18 @@ public class ContentController : ContentControllerBase
             }
         }
 
-        // Validate node
         IContent? node = _contentService.GetById(model.NodeId);
+
         if (node == null)
         {
             HttpContext.SetReasonPhrase("Node Not Found.");
             return NotFound("There is no content node with id {model.NodeId}.");
         }
 
-        // Validate permissions on node
-        EntityPermission? permission = _userService.GetPermissions(_backofficeSecurityAccessor.BackOfficeSecurity?.CurrentUser, node.Path);
+        EntityPermission? permission =
+            _userService.GetPermissions(_backofficeSecurityAccessor.BackOfficeSecurity?.CurrentUser, node.Path);
+
+
         if (permission?.AssignedPermissions.Contains(ActionAssignDomain.ActionLetter.ToString(), StringComparer.Ordinal) == false)
         {
             HttpContext.SetReasonPhrase("Permission Denied.");
@@ -2408,118 +2296,120 @@ public class ContentController : ContentControllerBase
         }
 
         model.Valid = true;
-
-        IDomain[] assignedDomains = _domainService.GetAssignedDomains(model.NodeId, true).ToArray();
+        IDomain[]? domains = _domainService.GetAssignedDomains(model.NodeId, true)?.ToArray();
         ILanguage[] languages = _localizationService.GetAllLanguages().ToArray();
-
-        // Process language
         ILanguage? language = model.Language > 0 ? languages.FirstOrDefault(l => l.Id == model.Language) : null;
-        if (language is not null)
+
+        // process wildcard
+        if (language != null)
         {
-            // Update or create language on wildcard domain
-            IDomain? assignedWildcardDomain = assignedDomains.FirstOrDefault(d => d.IsWildcard);
-            if (assignedWildcardDomain is not null)
+            // yet there is a race condition here...
+            IDomain? wildcard = domains?.FirstOrDefault(d => d.IsWildcard);
+            if (wildcard != null)
             {
-                assignedWildcardDomain.LanguageId = language.Id;
+                wildcard.LanguageId = language.Id;
             }
             else
             {
-                assignedWildcardDomain = new UmbracoDomain("*" + model.NodeId)
+                wildcard = new UmbracoDomain("*" + model.NodeId)
                 {
                     LanguageId = model.Language,
                     RootContentId = model.NodeId
                 };
             }
 
-            Attempt<OperationResult?> saveAttempt = _domainService.Save(assignedWildcardDomain);
-            if (saveAttempt.Success == false)
+            Attempt<OperationResult?> saveAttempt = _domainService.Save(wildcard);
+            if (saveAttempt == false)
             {
                 HttpContext.SetReasonPhrase(saveAttempt.Result?.Result.ToString());
                 return BadRequest("Saving domain failed");
             }
         }
-
-        // Delete every domain that's in the database, but not in the model
-        foreach (IDomain? assignedDomain in assignedDomains.Where(d => (d.IsWildcard && language is null) || (d.IsWildcard == false && (model.Domains is null || model.Domains.All(m => m.Name.InvariantEquals(d.DomainName) == false)))))
+        else
         {
-            _domainService.Delete(assignedDomain);
+            IDomain? wildcard = domains?.FirstOrDefault(d => d.IsWildcard);
+            if (wildcard != null)
+            {
+                _domainService.Delete(wildcard);
+            }
         }
 
-        // Process domains
-        if (model.Domains is not null)
+        // process domains
+        // delete every (non-wildcard) domain, that exists in the DB yet is not in the model
+        foreach (IDomain domain in domains?.Where(d =>
+                                       d.IsWildcard == false &&
+                                       (model.Domains?.All(m => m.Name.InvariantEquals(d.DomainName) == false) ??
+                                        false)) ??
+                                   Array.Empty<IDomain>())
         {
-            var savedDomains = new List<IDomain>();
-            foreach (DomainDisplay domainDisplay in model.Domains.Where(m => string.IsNullOrWhiteSpace(m.Name) == false))
+            _domainService.Delete(domain);
+        }
+
+        var names = new List<string>();
+
+        // create or update domains in the model
+        foreach (DomainDisplay domainModel in model.Domains?.Where(m => string.IsNullOrWhiteSpace(m.Name) == false) ??
+                                              Array.Empty<DomainDisplay>())
+        {
+            language = languages.FirstOrDefault(l => l.Id == domainModel.Lang);
+            if (language == null)
             {
-                language = languages.FirstOrDefault(l => l.Id == domainDisplay.Lang);
-                if (language == null)
-                {
-                    continue;
-                }
-
-                var domainName = domainDisplay.Name.ToLowerInvariant();
-                if (savedDomains.Any(d => d.DomainName == domainName))
-                {
-                    domainDisplay.Duplicate = true;
-                    continue;
-                }
-
-                IDomain? domain = assignedDomains.FirstOrDefault(d => d.DomainName.InvariantEquals(domainName));
-                if (domain is null && _domainService.GetByName(domainName) is IDomain existingDomain)
-                {
-                    // Domain name already exists on another node
-                    domainDisplay.Duplicate = true;
-
-                    // Add node breadcrumbs
-                    if (existingDomain.RootContentId is int rootContentId)
-                    {
-                        var breadcrumbs = new List<string?>();
-
-                        IContent? content = _contentService.GetById(rootContentId);
-                        while (content is not null)
-                        {
-                            breadcrumbs.Add(content.Name);
-                            if (content.ParentId < -1)
-                            {
-                                breadcrumbs.Add("Recycle Bin");
-                            }
-
-                            content = _contentService.GetParent(content);
-                        }
-
-                        breadcrumbs.Reverse();
-                        domainDisplay.Other = "/" + string.Join("/", breadcrumbs);
-                    }
-
-                    continue;
-                }
-
-                // Update or create domain
-                if (domain != null)
-                {
-                    domain.LanguageId = language.Id;
-                }
-                else
-                {
-                    domain = new UmbracoDomain(domainName)
-                    {
-                        LanguageId = language.Id,
-                        RootContentId = model.NodeId,
-                    };
-                }
-
-                Attempt<OperationResult?> saveAttempt = _domainService.Save(domain);
-                if (saveAttempt.Success == false)
-                {
-                    HttpContext.SetReasonPhrase(saveAttempt.Result?.Result.ToString());
-                    return BadRequest("Saving domain failed");
-                }
-
-                savedDomains.Add(domain);
+                continue;
             }
 
-            // Sort saved domains
-            _domainService.Sort(savedDomains);
+            var name = domainModel.Name.ToLowerInvariant();
+            if (names.Contains(name))
+            {
+                domainModel.Duplicate = true;
+                continue;
+            }
+
+            names.Add(name);
+            IDomain? domain = domains?.FirstOrDefault(d => d.DomainName.InvariantEquals(domainModel.Name));
+            if (domain != null)
+            {
+                domain.LanguageId = language.Id;
+                _domainService.Save(domain);
+            }
+            else if (_domainService.Exists(domainModel.Name))
+            {
+                domainModel.Duplicate = true;
+                IDomain? xdomain = _domainService.GetByName(domainModel.Name);
+                var xrcid = xdomain?.RootContentId;
+                if (xrcid.HasValue)
+                {
+                    IContent? xcontent = _contentService.GetById(xrcid.Value);
+                    var xnames = new List<string>();
+                    while (xcontent != null)
+                    {
+                        if (xcontent.Name is not null)
+                        {
+                            xnames.Add(xcontent.Name);
+                        }
+
+                        if (xcontent.ParentId < -1)
+                        {
+                            xnames.Add("Recycle Bin");
+                        }
+
+                        xcontent = _contentService.GetParent(xcontent);
+                    }
+
+                    xnames.Reverse();
+                    domainModel.Other = "/" + string.Join("/", xnames);
+                }
+            }
+            else
+            {
+                // yet there is a race condition here...
+                var newDomain = new UmbracoDomain(name) { LanguageId = domainModel.Lang, RootContentId = model.NodeId };
+                Attempt<OperationResult?> saveAttempt = _domainService.Save(newDomain);
+                if (saveAttempt == false)
+                {
+                    HttpContext.SetReasonPhrase(saveAttempt.Result?.Result.ToString());
+                    return BadRequest("Saving new domain failed");
+                }
+            }
         }
 
         model.Valid = model.Domains?.All(m => m.Duplicate == false) ?? false;

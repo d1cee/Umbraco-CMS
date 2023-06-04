@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -109,20 +109,6 @@ public class UserDataServiceTests
     }
 
     [Test]
-    [TestCase(RuntimeMode.BackofficeDevelopment)]
-    [TestCase(RuntimeMode.Development)]
-    [TestCase(RuntimeMode.Production)]
-    public void ReportsRuntimeModeCorrectly(RuntimeMode runtimeMode)
-    {
-        var userDataService = CreateUserDataService(runtimeMode: runtimeMode);
-        var userData = userDataService.GetUserData().ToArray();
-
-        var actual = userData.FirstOrDefault(x => x.Name == "Runtime Mode");
-        Assert.IsNotNull(actual?.Data);
-        Assert.AreEqual(runtimeMode.ToString(), actual.Data);
-    }
-
-    [Test]
     [TestCase(true)]
     [TestCase(false)]
     public void ReportsDebugModeCorrectly(bool isDebug)
@@ -138,8 +124,7 @@ public class UserDataServiceTests
     private SystemInformationTelemetryProvider CreateUserDataService(
         string culture = "",
         ModelsMode modelsMode = ModelsMode.InMemoryAuto,
-        bool isDebug = true,
-        RuntimeMode runtimeMode = RuntimeMode.BackofficeDevelopment)
+        bool isDebug = true)
     {
         var localizationService = CreateILocalizationService(culture);
 
@@ -153,8 +138,7 @@ public class UserDataServiceTests
             Mock.Of<IOptionsMonitor<HostingSettings>>(x => x.CurrentValue == new HostingSettings { Debug = isDebug }),
             Mock.Of<IHostEnvironment>(),
             Mock.Of<IUmbracoDatabaseFactory>(x => x.CreateDatabase() == Mock.Of<IUmbracoDatabase>(y => y.DatabaseType == DatabaseType.SQLite)),
-            Mock.Of<IServerRoleAccessor>(),
-            Mock.Of<IOptionsMonitor<RuntimeSettings>>(x => x.CurrentValue == new RuntimeSettings { Mode = runtimeMode }));
+            Mock.Of<IServerRoleAccessor>());
     }
 
     private ILocalizationService CreateILocalizationService(string culture)

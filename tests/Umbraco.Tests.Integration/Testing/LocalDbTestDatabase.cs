@@ -1,6 +1,7 @@
 // Copyright (c) Umbraco.
 // See LICENSE for more details.
 
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;

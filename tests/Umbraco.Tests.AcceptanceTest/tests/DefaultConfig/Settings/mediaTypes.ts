@@ -3,8 +3,7 @@ import {expect} from "@playwright/test";
 
 test.describe('Media types', () => {
 
-  test.beforeEach(async ({ page, umbracoApi }, testInfo) => {
-    await umbracoApi.report.report(testInfo);
+  test.beforeEach(async ({ page, umbracoApi }) => {
     await umbracoApi.login();
   });
 

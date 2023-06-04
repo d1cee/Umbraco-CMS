@@ -7,10 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Examine" Version="3.1.0" />
+    <PackageReference Include="Examine" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Umbraco.Core\Umbraco.Core.csproj" />
     <ProjectReference Include="..\Umbraco.Infrastructure\Umbraco.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

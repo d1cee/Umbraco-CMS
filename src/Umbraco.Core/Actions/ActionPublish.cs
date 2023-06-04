@@ -4,21 +4,20 @@
 namespace Umbraco.Cms.Core.Actions;
 
 /// <summary>
-///     This action is invoked when a document is being published.
+///     This action is invoked when a document is being published
 /// </summary>
 public class ActionPublish : IAction
 {
-    /// <inheritdoc cref="IAction.ActionLetter"/>
+    /// <summary>
+    ///     The unique action letter
+    /// </summary>
     public const char ActionLetter = 'U';
 
-    /// <inheritdoc cref="IAction.ActionAlias"/>
-    public const string ActionAlias = "publish";
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public char Letter => ActionLetter;
 
-    /// <inheritdoc/>
-    public string Alias => ActionAlias;
+    /// <inheritdoc />
+    public string Alias => "publish";
 
     /// <inheritdoc />
     public string Category => Constants.Conventions.PermissionCategories.ContentCategory;

@@ -31,7 +31,7 @@ public class DomainCache : IDomainCache
             list = list.Where(x => x.IsWildcard == false);
         }
 
-        return list.OrderBy(x => x.SortOrder);
+        return list;
     }
 
     /// <inheritdoc />
@@ -46,7 +46,7 @@ public class DomainCache : IDomainCache
             list = list.Where(x => x.IsWildcard == false);
         }
 
-        return list.OrderBy(x => x.SortOrder);
+        return list;
     }
 
     /// <inheritdoc />

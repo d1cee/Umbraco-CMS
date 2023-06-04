@@ -93,7 +93,7 @@
                 var elementTypeId = elementType.id;
                 const editor = {
                     id: elementTypeId,
-                    submit: function () {
+                    submit: function (model) {
                         editorService.close();
                     },
                     close: function () {

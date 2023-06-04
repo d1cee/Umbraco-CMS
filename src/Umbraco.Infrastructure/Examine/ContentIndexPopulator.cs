@@ -99,12 +99,15 @@ public class ContentIndexPopulator : IndexPopulator<IUmbracoContentIndex>
         {
             content = _contentService.GetPagedDescendants(contentParentId, pageIndex, pageSize, out _).ToArray();
 
-            var valueSets = _contentValueSetBuilder.GetValueSets(content).ToArray();
-
-            // ReSharper disable once PossibleMultipleEnumeration
-            foreach (IIndex index in indexes)
+            if (content.Length > 0)
             {
-                index.IndexItems(valueSets);
+                var valueSets = _contentValueSetBuilder.GetValueSets(content).ToList();
+
+                // ReSharper disable once PossibleMultipleEnumeration
+                foreach (IIndex index in indexes)
+                {
+                    index.IndexItems(valueSets);
+                }
             }
 
             pageIndex++;
@@ -124,32 +127,35 @@ public class ContentIndexPopulator : IndexPopulator<IUmbracoContentIndex>
             // note: We will filter for published variants in the validator
             content = _contentService.GetPagedDescendants(contentParentId, pageIndex, pageSize, out _, PublishedQuery, Ordering.By("Path")).ToArray();
 
-            var indexableContent = new List<IContent>();
-
-            foreach (IContent item in content)
+            if (content.Length > 0)
             {
-                if (item.Level == 1)
+                var indexableContent = new List<IContent>();
+
+                foreach (IContent item in content)
                 {
-                    // first level pages are always published so no need to filter them
-                    indexableContent.Add(item);
-                    publishedPages.Add(item.Id);
-                }
-                else
-                {
-                    if (publishedPages.Contains(item.ParentId))
+                    if (item.Level == 1)
                     {
-                        // only index when parent is published
-                        publishedPages.Add(item.Id);
+                        // first level pages are always published so no need to filter them
                         indexableContent.Add(item);
+                        publishedPages.Add(item.Id);
+                    }
+                    else
+                    {
+                        if (publishedPages.Contains(item.ParentId))
+                        {
+                            // only index when parent is published
+                            publishedPages.Add(item.Id);
+                            indexableContent.Add(item);
+                        }
                     }
                 }
-            }
 
-            var valueSets = _contentValueSetBuilder.GetValueSets(indexableContent.ToArray()).ToArray();
+                var valueSets = _contentValueSetBuilder.GetValueSets(indexableContent.ToArray()).ToList();
 
-            foreach (IIndex index in indexes)
-            {
-                index.IndexItems(valueSets);
+                foreach (IIndex index in indexes)
+                {
+                    index.IndexItems(valueSets);
+                }
             }
 
             pageIndex++;

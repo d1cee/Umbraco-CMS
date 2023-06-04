@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
@@ -83,7 +84,7 @@ public class TelemetryServiceTests
         };
         var manifestParser = CreateManifestParser(manifests);
         var metricsConsentService = new Mock<IMetricsConsentService>();
-        metricsConsentService.Setup(x => x.GetConsentLevel()).Returns(TelemetryLevel.Detailed);
+        metricsConsentService.Setup(x => x.GetConsentLevel()).Returns(TelemetryLevel.Basic);
         var sut = new TelemetryService(
             manifestParser,
             version,
@@ -118,7 +119,7 @@ public class TelemetryServiceTests
         };
         var manifestParser = CreateManifestParser(manifests);
         var metricsConsentService = new Mock<IMetricsConsentService>();
-        metricsConsentService.Setup(x => x.GetConsentLevel()).Returns(TelemetryLevel.Detailed);
+        metricsConsentService.Setup(x => x.GetConsentLevel()).Returns(TelemetryLevel.Basic);
         var sut = new TelemetryService(
             manifestParser,
             version,

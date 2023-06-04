@@ -128,13 +128,6 @@ angular.module("umbraco").controller("Umbraco.Editors.LinkPickerController",
             eventsService.emit("dialogs.linkPicker.select", args);
 
             if ($scope.currentNode) {
-                if ($scope.currentNode.id == args.node.id && $scope.currentNode.selected) {
-                    $scope.model.target = {};
-                    $scope.currentNode.selected = false;
-
-                    return;
-                }
-
                 //un-select if there's a current one selected
                 $scope.currentNode.selected = false;
             }

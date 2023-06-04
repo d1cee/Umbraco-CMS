@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Exceptions;
 using Umbraco.Cms.Core.IO;
@@ -13,6 +12,7 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Web.Common.DependencyInjection;
 using Umbraco.Extensions;
 using static System.Formats.Asn1.AsnWriter;
 
@@ -36,7 +36,7 @@ namespace Umbraco.Cms.Core.Services.Implement
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IEditorConfigurationParser _editorConfigurationParser;
 
-        [Obsolete("Please use constructor that takes an IEditorConfigurationParser. Will be removed in V13.")]
+        [Obsolete("Please use constructor that takes an ")]
         public DataTypeService(
             IDataValueEditorFactory dataValueEditorFactory,
             ICoreScopeProvider provider,
